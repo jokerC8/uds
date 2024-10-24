@@ -197,6 +197,15 @@ void uds_timer_stop(struct timer_loop *loop, struct uds_timer *timer)
 	timer->running = 0;
 }
 
+unsigned char uds_timer_running(struct uds_timer *timer)
+{
+	if (timer) {
+		return !!(timer->running);
+	}
+
+	return 0;
+}
+
 void uds_timer_destroy(struct uds_timer *timer)
 {
 	if (timer) {

@@ -33,6 +33,8 @@ void uds_timer_start(struct timer_loop *loop, struct uds_timer *timer);
 
 void uds_timer_stop(struct timer_loop *loop, struct uds_timer *timer);
 
+unsigned char uds_timer_running(struct uds_timer *timer);
+
 void uds_timer_destroy(struct uds_timer *timer);
 
 void uds_timer_suspend(struct uds_timer *timer);
