@@ -86,7 +86,7 @@ struct timer_loop *timer_loop_alloc(unsigned long cap)
 {
 	struct timer_loop *loop = NULL;
 
-	loop = malloc(sizeof(*loop));
+	loop = calloc(1, sizeof(*loop));
 	if (!loop) {
 		return NULL;
 	}
@@ -95,7 +95,7 @@ struct timer_loop *timer_loop_alloc(unsigned long cap)
 	loop->cap = is_pow_of_two(loop->cap) ? loop->cap : roundup_to_power_of_two(loop->cap);
 	loop->num = 0;
 	loop->userdata = NULL;
-	loop->timers = malloc(loop->cap * sizeof(void *));
+	loop->timers = calloc(loop->cap, sizeof(void *));
 	if (!loop->timers) {
 		goto nomem;
 	}
@@ -112,7 +112,7 @@ struct uds_timer *uds_timer_alloc(void (*cb)(struct timer_loop *loop, struct uds
 {
 	struct uds_timer *timer = NULL;
 
-	timer = malloc(sizeof(*timer));
+	timer = calloc(1, sizeof(*timer));
 	if (!timer) {
 		return NULL;
 	}
@@ -167,7 +167,7 @@ void uds_timer_start(struct timer_loop *loop, struct uds_timer *timer)
 
 	if ((loop->num + 1) == loop->cap) {
 		unsigned long cap = loop->cap < 1024 ? loop->cap * 2 : loop->cap + 1024;
-		struct uds_timer **timers = malloc(cap * sizeof(void *));
+		struct uds_timer **timers = calloc(cap, sizeof(void *));
 		memset(timers, 0, cap * sizeof(void *));
 		memcpy(timers, loop->timers, loop->cap * sizeof(void *));
 		free(loop->timers);

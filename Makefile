@@ -27,7 +27,7 @@ CC := clang
 
 CFLAGS += -g -O0 -Wall -Werror -fPIC
 
-LDFLAGS += -ljson-c
+LDFLAGS +=
 
 $(target):$(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)

@@ -73,28 +73,6 @@ enum {
 	IGNORE_RESPONSE,
 };
 
-struct uds_service_sub {
-	uint8_t sub;
-	uint8_t support;
-	uint8_t sprmid;
-	uint8_t physical;
-	uint8_t function;
-	uint8_t sessions[3];
-	uint8_t security[3];
-	uint8_t nrcs[21];
-	char desc[64];
-} uds_service_sub; /* uds_service_sub */
-
-struct uds_service_common {
-	uint8_t sid;
-	uint8_t support;
-	uint8_t sub_cnt;
-	uint8_t reserved_1;
-	char desc[64];
-	struct uds_service_sub *subs;
-	struct list_head list;
-} uds_service_common; /* uds_service_common */
-
 typedef struct uds_indication {
 	int status;
 	int handler;

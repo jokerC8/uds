@@ -129,7 +129,7 @@ struct uds_context *uds_context_alloc()
 
 	/* 创建定时器主loop */
 	uds_context->loop = timer_loop_alloc(16);
-	uds_context->heartbeat_timer = uds_timer_alloc(heartbeat_timer_cb, 3000, 3000, 0);
+	uds_context->heartbeat_timer = uds_timer_alloc(heartbeat_timer_cb, 3000, 0, 0);
 	uds_timer_set_userdata(uds_context->heartbeat_timer, uds_context);
 	uds_timer_start(uds_context->loop, uds_context->heartbeat_timer);
 
@@ -237,7 +237,6 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 		uds_stream_write_be16(&strm, uds_context->sa);
 		uds_stream_write_be16(&strm, uds_context->ta);
 		uds_stream_write_byte(&strm, uds_context->ta_type);
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_request->len += uds_stream_len(&strm);
 	}
 	/* 负响应 */

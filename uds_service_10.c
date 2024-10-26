@@ -69,6 +69,7 @@ int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int le
 finish:
 	uds_stream_init(&strm, uds_request->pos, uds_request->cap);
 	if (nrc == NRC_PositiveRespon_00) {
+		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, session);
 		uds_stream_write_be16(&strm, uds_context->p2server);
 		uds_stream_write_be16(&strm, uds_context->p2xserver / 10);
