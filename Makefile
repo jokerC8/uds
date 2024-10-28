@@ -18,6 +18,7 @@ src := uds_stream.c \
 	   uds_service_38.c \
 	   uds_service_3e.c \
 	   uds_service_85.c \
+	   uds_service_filter.c \
 	   uds.c \
 	   uds_main.c
 
@@ -25,9 +26,9 @@ obj := $(patsubst %.c, %.o, $(src))
 
 CC := clang
 
-CFLAGS += -g -O0 -Wall -Werror -fPIC
+CFLAGS += -g -O0 -Wall -fPIC
 
-LDFLAGS +=
+LDFLAGS += -ljson-c
 
 $(target):$(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)

@@ -7,6 +7,14 @@
 
 #define UDS_DEBUG_ENABLE
 
+#ifndef TRUE
+#define TRUE (0==0)
+#endif
+
+#ifndef FALSE
+#define FALSE !(TRUE)
+#endif
+
 #ifndef UNUSED
 #define UNUSED (void)
 #endif

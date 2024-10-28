@@ -9,17 +9,26 @@ static void s3_timer_callback(struct timer_loop *loop, struct uds_timer *timer)
 	logd("S3Server timeout (%d)ms, switch to default Session\n", uds_context->uds_service_10.S3Server);
 	uds_context->uds_service_10.session = UDS_DEFAULT_SESSION;
 	uds_timer_stop(loop, timer);
-	/* 1. reopen dtc Setting
-	 * 2. lock ecu
-	 * 3. cleanup io input/output
+
+	/* 1- 恢复DTC设置
+	 * 2- 重新锁定ECU
+	 * 3- 清空IO控制
+	 * 4- 清楚升级状态
 	 */
+	uds_service_27_lock_ecu(uds_context);
+}
+
+UDS_Session_E uds_diagnostic_session(struct uds_context *uds_context)
+{
+	uds_assert(uds_context, "uds_context is NULL");
+	return uds_context->uds_service_10.session;
 }
 
 int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int len)
 {
 	uds_stream_t strm = {0};
 	uint8_t sid, sub, session, nrc = NRC_PositiveRespon_00;
-	uds_request_t *uds_request = &uds_context->uds_request;
+	uds_response_t *uds_response = &uds_context->uds_response;
 	struct uds_service_10 *uds_service_10 = &uds_context->uds_service_10;
 
 	if (len != 2) {
@@ -40,6 +49,9 @@ int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int le
 		}
 		goto finish;
 	}
+
+	/* 重新锁定ECU */
+	uds_service_27_lock_ecu(uds_context);
 
 	/* 默认会话模式 -> 默认会话模式或拓展会话模式
 	 * 编程会话模式 -> 编程会话模式或默认会话模式
@@ -67,16 +79,16 @@ int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int le
 	}
 
 finish:
-	uds_stream_init(&strm, uds_request->pos, uds_request->cap);
+	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (nrc == NRC_PositiveRespon_00) {
 		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, session);
 		uds_stream_write_be16(&strm, uds_context->p2server);
 		uds_stream_write_be16(&strm, uds_context->p2xserver / 10);
-		uds_request->spr = Supress_Positive_Response(sub);
+		uds_response->spr = Supress_Positive_Response(sub);
 	}
 
-	uds_request->len = uds_stream_len(&strm);
+	uds_response->len = uds_stream_len(&strm);
 	uds_context->nrc = nrc;
 	return nrc;
 }

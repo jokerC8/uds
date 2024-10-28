@@ -75,11 +75,11 @@ static const char *uds_service_desc(uds_context_t *uds_context)
 		case UDS_Service_DTC_Setting_Control_85:
 			return "DTC Setting Control";
 		default:
-			return "unknow";
+			return "not supported";
 	}
 }
 
-/* for debug */
+/* 定时打印一些调试信息 */
 static void heartbeat_timer_cb(struct timer_loop *loop, struct uds_timer *timer)
 {
 	uds_context_t *uds_context = uds_timer_userdata(timer);
@@ -87,8 +87,8 @@ static void heartbeat_timer_cb(struct timer_loop *loop, struct uds_timer *timer)
 	logd("%.3fs timeout\n", timer->timeout * 1e-3);
 	logd("uds_indication->handler:%d, status:%s\n", uds_context->uds_indication.handler, \
 			connection_des(uds_context->uds_indication.status));
-	logd("uds_request->handler:%d, status:%s\n", uds_context->uds_request.handler, \
-			connection_des(uds_context->uds_request.status));
+	logd("uds_response->handler:%d, status:%s\n", uds_context->uds_response.handler, \
+			connection_des(uds_context->uds_response.status));
 }
 
 static void nrc78_timer_callback(struct timer_loop *loop, struct uds_timer *timer)
@@ -98,7 +98,7 @@ static void nrc78_timer_callback(struct timer_loop *loop, struct uds_timer *time
 	uds_timer_stop(loop, timer);
 	logd("nrc78_timer timeout(%dms)\n", uds_context->p2xserver);
 	if (uds_context->busy) {
-		uds_context->busy = 0;
+		uds_context->busy = UDS_IDLE;
 	}
 }
 
@@ -112,9 +112,9 @@ struct uds_context *uds_context_alloc()
 	}
 
 	uds_context->uds_indication.status = Connection_Socket_Uninitialized;
-	uds_context->uds_request.status = Connection_Socket_Uninitialized;
+	uds_context->uds_response.status = Connection_Socket_Uninitialized;
 	uds_context->uds_indication.sockfile = UDS_RECEIVER_SOCKFILE;
-	uds_context->uds_request.sockfile = UDS_SENDER_SOCKFILE;
+	uds_context->uds_response.sockfile = UDS_SENDER_SOCKFILE;
 	uds_context->status = UDS_Context_Uninitialized;
 
 	uds_context->uds_indication.cap = MAX_UDS_PDU_SIZE;
@@ -124,8 +124,8 @@ struct uds_context *uds_context_alloc()
 	}
 
 	/* 预留首部5字节, 用来保存SA,TA,TA_type */
-	uds_context->uds_request.pos = uds_context->uds_request.buffer + 5;
-	uds_context->uds_request.cap = sizeof(uds_context->uds_request.buffer) - 5;
+	uds_context->uds_response.pos = uds_context->uds_response.buffer + 5;
+	uds_context->uds_response.cap = sizeof(uds_context->uds_response.buffer) - 5;
 
 	/* 创建定时器主loop */
 	uds_context->loop = timer_loop_alloc(16);
@@ -199,58 +199,65 @@ finish:
 	return -1;
 }
 
-static int uds_request_init(uds_context_t *uds_context)
+static int uds_response_init(uds_context_t *uds_context)
 {
-	uds_request_t *uds_request = &uds_context->uds_request;
+	uds_response_t *uds_response = &uds_context->uds_response;
 
-	if (uds_request->status == Connection_Socket_Initialized) {
-		return uds_request->handler;
+	if (uds_response->status == Connection_Socket_Initialized) {
+		return uds_response->handler;
 	}
 
-	logd("uds_request_init\n");
-	if ((uds_request->handler = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
+	logd("uds_response_init\n");
+	if ((uds_response->handler = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
 		return -1;
 	}
 
-	bzero(&uds_request->target, sizeof(uds_request->target));
-	uds_request->target.sun_family = AF_UNIX;
-	memcpy(uds_request->target.sun_path, uds_request->sockfile, \
-			MIN(sizeof(uds_request->target.sun_path), strlen(uds_request->sockfile)));
+	bzero(&uds_response->target, sizeof(uds_response->target));
+	uds_response->target.sun_family = AF_UNIX;
+	memcpy(uds_response->target.sun_path, uds_response->sockfile, \
+			MIN(sizeof(uds_response->target.sun_path), strlen(uds_response->sockfile)));
 
-	uds_request->status = Connection_Socket_Initialized;
+	uds_response->status = Connection_Socket_Initialized;
 
-	return uds_request->handler;
+	return uds_response->handler;
 }
 
 static size_t uds_service_respon(uds_context_t *uds_context)
 {
 	uds_stream_t strm = {0};
-	uds_request_t *uds_request = &uds_context->uds_request;
+	uds_response_t *uds_response = &uds_context->uds_response;
 
-	if (uds_request->status != Connection_Socket_Initialized) {
+	if (uds_response->status != Connection_Socket_Initialized) {
 		return 0;
 	}
 
 	/* 正响应 */
-	if (uds_context->nrc == NRC_PositiveRespon_00 && !uds_request->spr) {
-		uds_stream_init(&strm, uds_request->buffer, sizeof(uds_request->buffer));
+	if (uds_context->nrc == NRC_PositiveRespon_00 && !uds_response->spr) {
+		uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
 		uds_stream_write_be16(&strm, uds_context->sa);
 		uds_stream_write_be16(&strm, uds_context->ta);
 		uds_stream_write_byte(&strm, uds_context->ta_type);
-		uds_request->len += uds_stream_len(&strm);
+		uds_response->len += uds_stream_len(&strm);
 	}
 	/* 负响应 */
 	else if (uds_context->nrc != NRC_PositiveRespon_00){
-		uds_stream_init(&strm, uds_request->buffer, sizeof(uds_request->buffer));
+		uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
 		uds_stream_write_byte(&strm, 0x7f);
 		uds_stream_write_byte(&strm, uds_context->sid);
 		uds_stream_write_byte(&strm, uds_context->nrc);
-		uds_request->len += uds_stream_len(&strm);
+		uds_response->len = uds_stream_len(&strm);
 	}
 
-	uds_hexdump(uds_stream_start_ptr(&strm), uds_request->len);
-	return sendto(uds_request->handler, uds_request->buffer, uds_request->len, 0, \
-			(struct sockaddr *)&uds_request->target, sizeof(uds_request->target));
+	uds_hexdump(uds_stream_start_ptr(&strm), uds_response->len);
+	return sendto(uds_response->handler, uds_response->buffer, uds_response->len, 0, \
+			(struct sockaddr *)&uds_response->target, sizeof(uds_response->target));
+}
+
+/* 处理uds新请求前清空response长度和spr标志 */
+static void reset_uds_response(uds_context_t *uds_context)
+{
+	uds_context->uds_response.len = 0;
+	uds_context->uds_response.spr = 0;
 }
 
 static void uds_indication_dispatch(uds_context_t *uds_context)
@@ -266,11 +273,36 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	uds_context->sid = uds_stream_read_byte(&strm);
 
 	if (uds_context->busy) {
-		logd("busy\n");
+		logd("uds busy\n");
 		return;
 	}
 
-	uds_context->busy = 1;
+	reset_uds_response(uds_context);
+
+	uds_context->busy = UDS_BUSY;
+
+	/* uds服务推荐NRC优先级顺序如下,如车厂有自己要求则需要更改
+	 * -> NRC_ServiceNotSupported_11
+	 * -> NRC_ServiceNotSupportedInActiveSession_7f
+	 * -> NRC_IncorrectMessageLengthOrInvalidFormat_13
+	 * -> NRC_SubFunctionNotSupported_12
+	 * -> NRC_SubFunctionNotSupportedInActiveSession_7e
+	 * -> NRC_SecurityAccessDenied_33
+	 * -> NRC_RequestSequenceError_24
+	 * -> NRC_RequestOutOfRange_31
+	 * ->NRC_ConditionsNotCorrect_22
+	 * -> NRC_RequestCorrentlyReceivedResponPending_78
+	 */
+
+	/* NRC11,NRC7f在uds请求分发前可统一处理, 剩余NRC在各自服务中处理比较好 */
+	if (!uds_service_verify(uds_context)) {
+		uds_context->nrc = NRC_ServiceNotSupported_11;
+		goto finish;
+	}
+	if (!uds_service_session_verify(uds_context)) {
+		uds_context->nrc = NRC_ServiceNotSupportedInActiveSession_7f;
+		goto finish;
+	}
 
 	switch (uds_context->sid) {
 		case UDS_Service_Session_Control_10:
@@ -322,23 +354,28 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 			uds_service_85_handler(uds_context, uds_indication->buffer + 5, uds_indication->len - 5);
 			break;
 		default:
+			/* 服务不支持 */
 			logd("sid(0x%02x) not supported\n", uds_context->sid);
+			uds_context->nrc = NRC_ServiceNotSupported_11;
 			break;
 	}
 
+finish:
 	logd("sid(0x%02x) %s\n", uds_context->sid, uds_service_desc(uds_context));
 	uds_hexdump(uds_indication->buffer, uds_indication->len);
 
 	uds_service_respon(uds_context);
 
-	if (uds_context->nrc == NRC_RequestCorrentlyReceivedResponPending_78) {
-		if (!uds_timer_running(uds_context->nrc78_timer)) {
-			uds_context->nrc78_timer->timeout = uds_context->p2xserver;
-			uds_timer_start(uds_context->loop, uds_context->nrc78_timer);
-		}
+	/* 非NRC78, uds处理流程结束 */
+	if (uds_context->nrc != NRC_RequestCorrentlyReceivedResponPending_78) {
+		uds_context->busy = UDS_IDLE;
+		return;
 	}
-	else {
-		uds_context->busy = 0;
+
+	/* NRC78期间不允许处理新的uds请求, 除非ecu处理完uds请求后主动停止NRC78定时器或者NRC78定时器自己超时 */
+	if (!uds_timer_running(uds_context->nrc78_timer)) {
+		uds_context->nrc78_timer->timeout = uds_context->p2xserver;
+		uds_timer_start(uds_context->loop, uds_context->nrc78_timer);
 	}
 }
 
@@ -351,16 +388,16 @@ static void uds_indication_handler(uds_context_t *uds_context)
 	pollfd.events = POLLIN;
 
 	int count = poll(&pollfd, 1, 100);
-	/* timeout */
+	/* 超时 */
 	if (count == 0) {
 		return;
 	}
-	/* error */
+	/* 系统错误 */
 	if (count < 0) {
 		uds_indication->status = Connection_Finalization;
 		return;
 	}
-	/* readable */
+	/* 数据可读 */
 	count = recv(uds_indication->handler, uds_indication->buffer, uds_indication->cap, 0);
 	if (count == 0) {
 		return;
@@ -370,13 +407,14 @@ static void uds_indication_handler(uds_context_t *uds_context)
 		return;
 	}
 
-	/* SA + TA + TY_type */
-	if (count <= 5) {
+	/* SA + TA + TY_type + UDS(至少1字节sid), 后续解析至少可以先解析出sid */
+	if (count < 6) {
 		return;
 	}
 
 	uds_indication->len = count;
-	/* recv uds request */
+
+	/* uds请求解析并分发 */
 	uds_indication_dispatch(uds_context);
 }
 
@@ -395,24 +433,26 @@ static void uds_indication_cleanup(uds_context_t *uds_context)
 	uds_indication->status = Connection_Socket_Uninitialized;
 }
 
-static void uds_request_cleanup(uds_context_t *uds_context)
+static void uds_response_cleanup(uds_context_t *uds_context)
 {
-	uds_request_t *uds_request = &uds_context->uds_request;
+	uds_response_t *uds_response = &uds_context->uds_response;
 
-	if (uds_request->status != Connection_Finalization) {
+	if (uds_response->status != Connection_Finalization) {
 		return;
 	}
 
-	if (uds_request->handler > 0) {
-		close(uds_request->handler);
+	if (uds_response->handler > 0) {
+		close(uds_response->handler);
 	}
-	uds_request->handler = -1;
-	uds_request->status = Connection_Socket_Uninitialized;
+	uds_response->handler = -1;
+	uds_response->status = Connection_Socket_Uninitialized;
 }
 
-/* start uds servers */
+/* 启动uds服务 */
 void uds_service_start(struct uds_context *uds_context)
 {
+	uds_assert(uds_context, "uds_context is NULL");
+
 	if (uds_context->status == UDS_Context_Uninitialized) {
 		loge("uds context uninitialized\n");
 		return;
@@ -428,33 +468,34 @@ void uds_service_start(struct uds_context *uds_context)
 		uds_context->start = 1;
 
 		if (uds_indication_init(uds_context) < 0) {
-			logd("uds_requestication_init failed(%s)\n", strerror(errno));
+			logd("uds_responseication_init failed(%s)\n", strerror(errno));
 			poll(0, 0, 3000);
 			continue;
 		}
 
-		if (uds_request_init(uds_context) < 0) {
-			loge("uds_request_init failed(%s)\n", strerror(errno));
+		if (uds_response_init(uds_context) < 0) {
+			loge("uds_response_init failed(%s)\n", strerror(errno));
 			poll(0, 0, 3000);
 			continue;
 		}
 
-		/* process uds request */
+		/* 接收并处理uds请求 */
 		uds_indication_handler(uds_context);
 
-		/* do some socket cleanup if needed */
+		/* 做一些清理操作, 如socket异常清理 */
 		uds_indication_cleanup(uds_context);
 
-		/* do some socket cleanup if needed */
-		uds_request_cleanup(uds_context);
+		/* 做一些清理操作, 如socket异常清理 */
+		uds_response_cleanup(uds_context);
 
-		/* uds timer main loop */
+		/* 定时器loop */
 		uds_timer_loop(uds_context->loop);
 	}
 
 	uds_context->start = 0;
 }
 
+/* 停住uds服务 */
 void uds_service_stop(struct uds_context *uds_context)
 {
 	if (uds_context) {
@@ -462,6 +503,7 @@ void uds_service_stop(struct uds_context *uds_context)
 	}
 }
 
+/* 做一些清理 */
 void uds_context_destroy(struct uds_context *uds_context)
 {
 	/* TODO */

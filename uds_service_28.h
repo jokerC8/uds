@@ -1,6 +1,11 @@
 #ifndef __UDS_SERVICE_28_H_INCLUDED__
 #define __UDS_SERVICE_28_H_INCLUDED__
 
+#define CommunicationControl_EnableRxAndTx (0x00)
+#define CommunicationControl_EnableRxAndDisableTx (0x01)
+#define CommunicationControl_DisableRxAndEnableTx (0x02)
+#define CommunicationControl_DisableRxAndTx (0x03)
+
 struct uds_context;
 
 struct uds_service_28 {
