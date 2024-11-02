@@ -37,6 +37,8 @@ void uds_service_27_init(struct uds_context *uds_context);
 
 void uds_service_27_lock_ecu(struct uds_context *uds_context);
 
+Security_Level_E uds_security_access_level(struct uds_context *uds_context);
+
 int uds_service_27_handler(struct uds_context *uds_context, unsigned char *uds, int len);
 
 #endif

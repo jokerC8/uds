@@ -1,15 +1,11 @@
 #include "uds.h"
+#include "uds_stream.h"
 #include <json-c/json.h>
 
-static const char *attribute_desc(int attribute)
-{
-	switch (attribute) {
-		case 1: return "rd";
-		case 2: return "wr";
-		case 3: return "rw";
-	}
-	return "unknow";
-}
+struct uds_service_22_identifier_reader {
+	int did;
+	void (*fp)(uds_context_t *uds_context);
+};
 
 static void uds_service_22_identifier_dump(uds_context_t *uds_context)
 {
@@ -28,10 +24,64 @@ static void uds_service_22_identifier_dump(uds_context_t *uds_context)
 	}
 }
 
-int uds_service_22_handler(struct uds_context *uds_context, unsigned char *data, int len)
+int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, int len)
 {
-	/* TODO */
-	return 0;
+	uds_stream_t strm = {0};
+	uint8_t nrc = NRC_PositiveRespon_00;
+	struct uds_service_22_identifier *identifier = NULL;
+	struct uds_service_22 *uds_service_22 = &uds_context->uds_service_22;
+
+	if (len < 3) {
+		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
+		goto finish;
+	}
+
+	uds_stream_init(&strm, uds, len);
+	uds_stream_forward(&strm, 1);
+	uint16_t did = uds_stream_read_be16(&strm);
+	for (int i = 0; i < uds_service_22->count; i++) {
+		if (uds_service_22->identifiers[i].did == did) {
+			identifier = &uds_service_22->identifiers[i];
+			break;
+		}
+	}
+
+	/* did不支持 */
+	if (!identifier) {
+		nrc = NRC_RequestOutOfRange_31;
+		goto finish;
+	}
+
+#if 0
+	/* did长度不匹配 */
+	if ((int)identifier->len != (len - 3)) {
+		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
+		goto finish;
+	}
+#endif
+
+	/* 子功能在当前会话模式下不支持 */
+	for (size_t i = 0; i < ARRAYSIZE(identifier->sessions); i++) {
+		if (identifier->sessions[i].session == uds_diagnostic_session(uds_context)) {
+			if (strcmp((char *)identifier->sessions[i].attribute, "wr")) {
+				nrc = NRC_ConditionsNotCorrect_22;
+				goto finish;
+			}
+		}
+	}
+
+	/* 当前安全级别下不支持 */
+	for (size_t i = 0; i < ARRAYSIZE(identifier->security_access_levels); i++) {
+		if (identifier->security_access_levels[i].level == uds_security_access_level(uds_context)) {
+			if (strcmp((char *)identifier->security_access_levels[i].attribute, "wr")) {
+				nrc = NRC_ConditionsNotCorrect_22;
+				goto finish;
+			}
+		}
+	}
+
+finish:
+	return nrc;
 }
 
 static void uds_service_22_identifier_parse(uds_context_t *uds_context, const char *filename)
