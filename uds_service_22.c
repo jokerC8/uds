@@ -16,17 +16,15 @@ static void uds_service_22_identifier_dump(uds_context_t *uds_context)
 	struct uds_service_22_identifier *identifiers = uds_context->uds_service_22.identifiers;
 
 	for (int i = 0; i < uds_context->uds_service_22.count; i++) {
-		logd("did:0x%04x\n", identifiers[i].did);
-		logd("len:%d\n", identifiers[i].len);
-		logd("desc:%s\n", identifiers[i].desc);
+		logd("did:0x%04x, len:%d, desc:%s\n", identifiers[i].did, identifiers[i].len, identifiers[i].desc);
 		for (int j = 0; j < 3; j++) {
-			logd("session:%d\n", identifiers[i].sessions[j].session);
-			logd("attr:%d\n", identifiers[i].sessions[j].attribute);
+			logd("session:%d attr:%s\n", identifiers[i].sessions[j].session, identifiers[i].sessions[j].attribute);
 		}
 		for (int j = 0; j < 3; j++) {
-			logd("security level:%d\n", identifiers[i].security_access_levels[j].level);
-			logd("attr:%s\n", attribute_desc(identifiers[i].security_access_levels[j].attribute));
+			logd("security level:%d attr:%s\n", identifiers[i].security_access_levels[j].level, \
+					identifiers[i].security_access_levels[j].attribute);
 		}
+		logd("-------------------------------------------------------------------\n");
 	}
 }
 
@@ -59,11 +57,11 @@ static void uds_service_22_identifier_parse(uds_context_t *uds_context, const ch
 		struct json_object *sessions_obj = json_object_object_get(item, "sessions");
 		struct json_object *security_access_levels_obj = json_object_object_get(item, "security_access_levels");
 
-		uds_assert(json_object_is_type(did_obj, json_type_string), "did is not string");
-		uds_assert(json_object_is_type(len_obj, json_type_int), "len is not int");
-		uds_assert(json_object_is_type(desc_obj, json_type_string), "desc is not string");
-		uds_assert(json_object_is_type(sessions_obj, json_type_array), "sessions is not array");
-		uds_assert(json_object_is_type(security_access_levels_obj, json_type_array), "security_access_levels is not array");
+		uds_assert(json_object_is_type(did_obj, json_type_string), "did is not valid string");
+		uds_assert(json_object_is_type(len_obj, json_type_int), "len is not valid int");
+		uds_assert(json_object_is_type(desc_obj, json_type_string), "desc is not valid string");
+		uds_assert(json_object_is_type(sessions_obj, json_type_array), "sessions is not valid array");
+		uds_assert(json_object_is_type(security_access_levels_obj, json_type_array), "security_access_levels is not valid array");
 
 		uds_context->uds_service_22.identifiers[i].len = json_object_get_int(len_obj);
 		uds_context->uds_service_22.identifiers[i].did = strtoul(json_object_get_string(did_obj), NULL, 0x10);
@@ -83,11 +81,12 @@ static void uds_service_22_identifier_parse(uds_context_t *uds_context, const ch
 			struct json_object *session_obj = json_object_object_get(session_item, "session");
 			struct json_object *attr_obj = json_object_object_get(session_item, "attr");
 
-			uds_assert(json_object_is_type(session_obj, json_type_int), "session_obj item not int");
-			uds_assert(json_object_is_type(attr_obj, json_type_int), "attr_obj not int");
+			uds_assert(json_object_is_type(session_obj, json_type_int), "session_obj item not valid int");
+			uds_assert(json_object_is_type(attr_obj, json_type_string), "attr_obj not valid string");
 
 			uds_context->uds_service_22.identifiers[i].sessions[j].session = json_object_get_int(session_obj);
-			uds_context->uds_service_22.identifiers[i].sessions[j].attribute = json_object_get_int(attr_obj);
+			memcpy(uds_context->uds_service_22.identifiers[i].sessions[j].attribute, json_object_get_string(attr_obj), \
+					sizeof(uds_context->uds_service_22.identifiers[i].sessions[j].attribute) - 1);
 		}
 
 		for (int k = 0; k < security_count; k++) {
@@ -98,11 +97,12 @@ static void uds_service_22_identifier_parse(uds_context_t *uds_context, const ch
 			struct json_object *level_obj = json_object_object_get(security_item, "security_access_level");
 			struct json_object *attr_obj = json_object_object_get(security_item, "attr");
 
-			uds_assert(json_object_is_type(level_obj, json_type_int), "level_obj not int");
-			uds_assert(json_object_is_type(attr_obj, json_type_int), "attr_obj not int");
+			uds_assert(json_object_is_type(level_obj, json_type_int), "level_obj not valid int");
+			uds_assert(json_object_is_type(attr_obj, json_type_string), "attr_obj not valid string");
 
-			uds_context->uds_service_22.identifiers[i].sessions[k].session = json_object_get_int(level_obj);
-			uds_context->uds_service_22.identifiers[i].sessions[k].attribute = json_object_get_int(attr_obj);
+			uds_context->uds_service_22.identifiers[i].security_access_levels[k].level= json_object_get_int(level_obj);
+			memcpy(uds_context->uds_service_22.identifiers[i].security_access_levels[k].attribute, \
+				json_object_get_string(attr_obj), sizeof(uds_context->uds_service_22.identifiers[i].security_access_levels[k].attribute) - 1);
 		}
 	}
 

@@ -11,11 +11,11 @@ struct uds_service_22_identifier {
 	char desc[64];
 	struct {
 		unsigned char session;
-		unsigned char attribute;
+		unsigned char attribute[3];
 	} sessions[3];
 	struct {
 		unsigned char level;
-		unsigned char attribute;
+		unsigned char attribute[3];
 	} security_access_levels[3];
 };
 
