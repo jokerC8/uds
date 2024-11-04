@@ -32,6 +32,7 @@ finish:
 		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, sub);
 		uds_response->len = uds_stream_len(&strm);
+		uds_response->spr = Supress_Positive_Response(sub);
 	}
 	return nrc;
 }
