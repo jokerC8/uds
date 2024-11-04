@@ -67,3 +67,17 @@ int uds_service_verify(uds_context_t *uds_context)
 
 	return FALSE;
 }
+
+/* 过滤允许功能地址访问的服务 */
+int uds_service_TAtype_filter(uds_context_t *uds_context)
+{
+	if (uds_context->ta_type == TATYPE_FUNC_ADDR) {
+		return ((uds_context->sid == 0x10 || \
+				uds_context->sid == 0x11 || \
+				uds_context->sid == 0x28 || \
+				uds_context->sid == 0x3e || \
+				uds_context->sid == 0x85));
+	}
+
+	return TRUE;
+}

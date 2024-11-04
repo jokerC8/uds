@@ -7,4 +7,6 @@ int uds_service_verify(struct uds_context *uds_context);
 
 int uds_service_session_verify(struct uds_context *uds_context);
 
+int uds_service_TAtype_filter(struct uds_context *uds_context);
+
 #endif

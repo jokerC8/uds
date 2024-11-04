@@ -2,9 +2,55 @@
 #include "uds_stream.h"
 #include <json-c/json.h>
 
-struct uds_service_22_identifier_reader {
+struct identifier_read_handler {
 	int did;
-	void (*fp)(uds_context_t *uds_context);
+	int (*read)(uds_context_t *uds_context);
+};
+
+
+static int identifier_0xf187_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static int identifier_0xf18a_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static int identifier_0xf197_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static int identifier_0xf193_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static int identifier_0xf195_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static int identifier_0xf18c_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static int identifier_0xf190_read_handler(uds_context_t *uds_context)
+{
+	return FALSE;
+}
+
+static struct identifier_read_handler __gs_read_handler_table__[] = {
+	{0xf187, identifier_0xf187_read_handler},
+	{0xf18a, identifier_0xf18a_read_handler},
+	{0xf197, identifier_0xf197_read_handler},
+	{0xf193, identifier_0xf193_read_handler},
+	{0xf195, identifier_0xf195_read_handler},
+	{0xf18c, identifier_0xf18c_read_handler},
+	{0xf190, identifier_0xf190_read_handler},
 };
 
 static void uds_service_22_identifier_dump(uds_context_t *uds_context)
@@ -30,6 +76,8 @@ int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, 
 	uint8_t nrc = NRC_PositiveRespon_00;
 	struct uds_service_22_identifier *identifier = NULL;
 	struct uds_service_22 *uds_service_22 = &uds_context->uds_service_22;
+	struct identifier_read_handler *identifier_handler = NULL;
+	uds_response_t *uds_response = &uds_context->uds_response;
 
 	if (len < 3) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
@@ -52,35 +100,53 @@ int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, 
 		goto finish;
 	}
 
-#if 0
-	/* did长度不匹配 */
-	if ((int)identifier->len != (len - 3)) {
-		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
-		goto finish;
-	}
-#endif
-
 	/* 子功能在当前会话模式下不支持 */
 	for (size_t i = 0; i < ARRAYSIZE(identifier->sessions); i++) {
 		if (identifier->sessions[i].session == uds_diagnostic_session(uds_context)) {
-			if (strcmp((char *)identifier->sessions[i].attribute, "wr")) {
+			if (strcmp((char *)identifier->sessions[i].attribute, "rd") != 0 &&
+				strcmp((char *)identifier->sessions[i].attribute, "rw") != 0) {
 				nrc = NRC_ConditionsNotCorrect_22;
 				goto finish;
 			}
+			break;
 		}
 	}
 
 	/* 当前安全级别下不支持 */
 	for (size_t i = 0; i < ARRAYSIZE(identifier->security_access_levels); i++) {
 		if (identifier->security_access_levels[i].level == uds_security_access_level(uds_context)) {
-			if (strcmp((char *)identifier->security_access_levels[i].attribute, "wr")) {
+			if (strcmp((char *)identifier->security_access_levels[i].attribute, "rd") != 0 &&
+				strcmp((char *)identifier->security_access_levels[i].attribute, "rw") != 0) {
 				nrc = NRC_ConditionsNotCorrect_22;
 				goto finish;
 			}
+			break;
 		}
 	}
 
+	for (size_t i = 0; i < ARRAYSIZE(__gs_read_handler_table__); i++) {
+		if (__gs_read_handler_table__[i].did == identifier->did) {
+			identifier_handler = &__gs_read_handler_table__[i];
+			break;
+		}
+	}
+
+	/* did读取未实现或者读取失败, 返回全0数据 */
+	if (!(identifier_handler && identifier_handler->read) || !identifier_handler->read(uds_context)) {
+		uds_stream_init(&strm, uds_response->pos, uds_response->cap);
+		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
+		uds_stream_write_be16(&strm, identifier->did);
+		uds_assert(identifier->len < uds_stream_left_len(&strm), "did len(%d) too long\n", identifier->len);
+		memset(uds_stream_ptr(&strm), 0x00, identifier->len);
+		uds_stream_forward(&strm, identifier->len);
+		uds_response->len = uds_stream_len(&strm);
+		goto finish;
+	}
+
+	/* 读取成功, 在did的处理函数中填充 */
+
 finish:
+	uds_context->nrc = nrc;
 	return nrc;
 }
 

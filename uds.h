@@ -73,6 +73,11 @@ enum {
 	UDS_BUSY,
 };
 
+enum {
+	TATYPE_PHY_ADDR = 0x00,
+	TATYPE_FUNC_ADDR,
+};
+
 typedef struct uds_indication {
 	int status;
 	int handler;

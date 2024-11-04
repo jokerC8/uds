@@ -24,6 +24,21 @@ UDS_Session_E uds_diagnostic_session(struct uds_context *uds_context)
 	return uds_context->uds_service_10.session;
 }
 
+void maintain_diagnostic_mode(struct uds_context *uds_context)
+{
+	struct uds_service_10 *uds_service_10 = &uds_context->uds_service_10;
+	uds_assert(uds_context, "uds_context is NULL");
+
+	/* 默认会话下无需维持 */
+	if (uds_diagnostic_session(uds_context) == UDS_DEFAULT_SESSION) {
+		return;
+	}
+
+	uds_assert(uds_timer_running(uds_service_10->s3_timer), "s3_timer not running");
+	uds_service_10->s3_timer->timeout = uds_service_10->S3Server;
+	uds_timer_start(uds_context->loop, uds_service_10->s3_timer);
+}
+
 int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int len)
 {
 	uds_stream_t strm = {0};

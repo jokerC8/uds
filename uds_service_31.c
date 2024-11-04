@@ -3,7 +3,6 @@
 
 int uds_service_31_handler(struct uds_context *uds_context, unsigned char *uds, int len)
 {
-	/* TODO */
 	return 0;
 }
 

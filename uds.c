@@ -231,21 +231,25 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 		return 0;
 	}
 
-	/* 正响应 */
-	if (uds_context->nrc == NRC_PositiveRespon_00 && !uds_response->spr) {
-		uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
-		uds_stream_write_be16(&strm, uds_context->sa);
-		uds_stream_write_be16(&strm, uds_context->ta);
-		uds_stream_write_byte(&strm, uds_context->ta_type);
-		uds_response->len += uds_stream_len(&strm);
-	}
+	uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
+	uds_stream_write_be16(&strm, uds_context->sa);
+	uds_stream_write_be16(&strm, uds_context->ta);
+	uds_stream_write_byte(&strm, uds_context->ta_type);
+
 	/* 负响应 */
-	else if (uds_context->nrc != NRC_PositiveRespon_00){
-		uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
+	if (uds_context->nrc != NRC_PositiveRespon_00){
 		uds_stream_write_byte(&strm, 0x7f);
 		uds_stream_write_byte(&strm, uds_context->sid);
 		uds_stream_write_byte(&strm, uds_context->nrc);
 		uds_response->len = uds_stream_len(&strm);
+	}
+	/* 正响应 */
+	else if (!uds_response->spr) {
+		uds_response->len += uds_stream_len(&strm);
+	}
+	/* 抑制正响应 */
+	else {
+		return 0;
 	}
 
 	uds_hexdump(uds_stream_start_ptr(&strm), uds_response->len);
@@ -301,6 +305,12 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	}
 	if (!uds_service_session_verify(uds_context)) {
 		uds_context->nrc = NRC_ServiceNotSupportedInActiveSession_7f;
+		goto finish;
+	}
+
+	/* 检查服务是否支持功能地址 */
+	if (!uds_service_TAtype_filter(uds_context)) {
+		uds_context->nrc = NRC_ConditionsNotCorrect_22;
 		goto finish;
 	}
 
