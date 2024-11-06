@@ -2,6 +2,7 @@ target := uds_server
 
 src := uds_stream.c \
 	   uds_timer.c \
+	   uds_utils.c \
 	   uds_service_10.c \
 	   uds_service_11.c \
 	   uds_service_14.c \

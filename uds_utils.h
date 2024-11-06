@@ -68,7 +68,7 @@
 	time(&cur); \
 	localtime_r(&cur, &tm); \
 	offset += strftime(__buffer__ + offset, sizeof(__buffer__) - offset, "\033[32m%Y-%m-%d %H:%M:%S ", &tm); \
-	offset += snprintf(__buffer__ + offset, sizeof(__buffer__) - offset, "[line:%d, func:%s] ", __LINE__, __FUNCTION__); \
+	offset += snprintf(__buffer__ + offset, sizeof(__buffer__) - offset, "[func:%s, line:%d] ", __FUNCTION__, __LINE__); \
 	for (int i = 0; i < len; ++i) { \
 		offset += snprintf(__buffer__ + offset, sizeof(__buffer__) - offset, "%02x ", data[i]); \
 	} \
@@ -81,5 +81,7 @@
 #define loge(format, args...)
 #define uds_hexdump(data, len)
 #endif
+
+unsigned long byte_array2_uint64(unsigned char *data, int len);
 
 #endif

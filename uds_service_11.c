@@ -72,6 +72,7 @@ finish:
 	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (nrc == NRC_PositiveRespon_00) {
 		uds_stream_write_byte(&strm, sub);
+		uds_response->spr = Supress_Positive_Response(sub);
 	}
 
 	uds_context->nrc = nrc;

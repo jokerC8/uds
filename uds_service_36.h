@@ -4,7 +4,9 @@
 struct uds_context;
 
 struct uds_service_36 {
-
+	char filepath[256];
+	void *fp;
+	unsigned char block_num;
 };
 
 void uds_service_36_init(struct uds_context *uds_context);

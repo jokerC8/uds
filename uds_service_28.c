@@ -1,22 +1,22 @@
 #include "uds.h"
 #include "uds_stream.h"
 
-static void communication_control_EnableRxAndTx(uds_context)
+static void communication_control_EnableRxAndTx(uds_context_t *uds_context)
 {
 	logd("communication_control_EnableRxAndTx\n");
 }
 
-static void communication_control_EnableRxAndDisableTx(uds_context)
+static void communication_control_EnableRxAndDisableTx(uds_context_t *uds_context)
 {
 	logd("communication_control_EnableRxAndDisableTx\n");
 }
 
-static void communication_control_DisableRxAndEnableTx(uds_context)
+static void communication_control_DisableRxAndEnableTx(uds_context_t *uds_context)
 {
 	logd("communication_control_DisableRxAndEnableTx\n");
 }
 
-static void communication_control_DisableRxAndTx(uds_context)
+static void communication_control_DisableRxAndTx(uds_context_t *uds_context)
 {
 	logd("communication_control_DisableRxAndTx\n");
 }
@@ -65,6 +65,7 @@ finish:
 	if (nrc == NRC_PositiveRespon_00) {
 		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, sub);
+		uds_response->spr = Supress_Positive_Response(sub);
 	}
 	uds_response->len = uds_stream_len(&strm);
 
