@@ -4,43 +4,63 @@
 
 typedef struct identifier_read_handler {
 	int did;
-	int (*read)(uds_context_t *uds_context);
+	int (*read)(uds_context_t *uds_context, uint16_t identifier);
 } identifier_read_handler_t;
 
 
-static int identifier_0xf187_read_handler(uds_context_t *uds_context)
+static int fill_uds_response(uds_context_t *uds_context, uint16_t identifier, uint8_t *data, int len)
 {
-	return FALSE;
+	uds_stream_t strm = {0};
+	uds_response_t *uds_response = &uds_context->uds_response;
+
+	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
+	uds_stream_write_be16(&strm, identifier);
+	uds_stream_write_data(&strm, data, len);
+	uds_response->len = uds_stream_len(&strm);
+	logd("len:%d\n", uds_response->len);
+	return uds_response->len;
 }
 
-static int identifier_0xf18a_read_handler(uds_context_t *uds_context)
+static int identifier_0xf187_read_handler(uds_context_t *uds_context, uint16_t identifier)
 {
-	return FALSE;
+	uint8_t record[15] = {"123456789012345"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
 }
 
-static int identifier_0xf197_read_handler(uds_context_t *uds_context)
+static int identifier_0xf18a_read_handler(uds_context_t *uds_context, uint16_t identifier)
 {
-	return FALSE;
+	uint8_t record[10] = {"1234567890"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
 }
 
-static int identifier_0xf193_read_handler(uds_context_t *uds_context)
+static int identifier_0xf197_read_handler(uds_context_t *uds_context, uint16_t identifier)
 {
-	return FALSE;
+	uint8_t record[10] = {"1234567890"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
 }
 
-static int identifier_0xf195_read_handler(uds_context_t *uds_context)
+static int identifier_0xf193_read_handler(uds_context_t *uds_context, uint16_t identifier)
 {
-	return FALSE;
+	uint8_t record[2] = {"12"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
 }
 
-static int identifier_0xf18c_read_handler(uds_context_t *uds_context)
+static int identifier_0xf195_read_handler(uds_context_t *uds_context, uint16_t identifier)
 {
-	return FALSE;
+	uint8_t record[2] = {"34"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
 }
 
-static int identifier_0xf190_read_handler(uds_context_t *uds_context)
+static int identifier_0xf18c_read_handler(uds_context_t *uds_context, uint16_t identifier)
 {
-	return FALSE;
+	uint8_t record[14] = {"12345678901234"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
+}
+
+static int identifier_0xf190_read_handler(uds_context_t *uds_context, uint16_t identifier)
+{
+	uint8_t record[17] = {"12345678901234567"};
+	return fill_uds_response(uds_context, identifier, record, ARRAYSIZE(record));
 }
 
 static struct identifier_read_handler __gs_read_handler_table__[] = {
@@ -132,7 +152,7 @@ int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, 
 	}
 
 	/* did读取未实现或者读取失败, 返回全0数据 */
-	if (!(identifier_handler && identifier_handler->read) || !identifier_handler->read(uds_context)) {
+	if (!(identifier_handler && identifier_handler->read) || !identifier_handler->read(uds_context, identifier->did)) {
 		uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 		uds_stream_write_be16(&strm, identifier->did);
 		uds_assert(identifier->len < uds_stream_left_len(&strm), "did len(%d) too long\n", identifier->len);
