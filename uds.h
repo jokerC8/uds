@@ -20,7 +20,7 @@
 #include "uds_service_38.h"
 #include "uds_service_3e.h"
 #include "uds_service_85.h"
-#include "uds_dtc_detect.h"
+#include "uds_dtc_monitor.h"
 #include "uds_service_filter.h"
 
 #define Acquire_Sub_Function(a) ((a) & 0x7f)
@@ -28,6 +28,8 @@
 
 #define UDS_RECEIVER_SOCKFILE                    "/tmp/doip2uds"
 #define UDS_SENDER_SOCKFILE                      "/tmp/uds2doip"
+
+#define UDS_CONFIG_FILE                          "./uds.json"
 
 #define UDS_Service_Session_Control_10 (0x10)
 #define UDS_Service_ECU_Reset_11 (0x11)
@@ -135,7 +137,11 @@ typedef struct uds_context {
 	uds_service_38_t uds_service_38;
 	uds_service_3e_t uds_service_3e;
 	uds_service_85_t uds_service_85;
+<<<<<<< HEAD
 	uds_dtc_detect_t uds_dtc_detection;
+=======
+	uds_dtc_monitor_t uds_dtc_monitor;
+>>>>>>> dev1
 
 	/* 定时器loop */
 	struct timer_loop *loop;

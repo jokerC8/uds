@@ -151,9 +151,12 @@ finish:
 
 static void uds_service_22_identifier_parse(uds_context_t *uds_context, const char *filename)
 {
-	struct json_object *identifiers_obj = json_object_from_file(filename);
+	struct json_object *obj = json_object_from_file(filename);
 
-	uds_assert(identifiers_obj, "%s not valid json", filename);
+	uds_assert(obj, "%s not valid json", filename);
+	struct json_object *identifiers_obj = json_object_object_get(obj, "sid_22");
+
+	uds_assert(identifiers_obj, "can not find sid_22 in %s", filename);
 	uds_assert(json_object_is_type(identifiers_obj, json_type_array), "%s is not array", filename);
 
 	int count = json_object_array_length(identifiers_obj);
@@ -222,12 +225,12 @@ static void uds_service_22_identifier_parse(uds_context_t *uds_context, const ch
 	}
 
 	uds_service_22_identifier_dump(uds_context);
-	json_object_put(identifiers_obj);
+	json_object_put(obj);
 }
 
 void uds_service_22_init(struct uds_context *uds_context)
 {
 	logd("uds_service_22_init\n");
-	uds_service_22_identifier_parse(uds_context, UDS_IDENTIFIERS_CONF);
+	uds_service_22_identifier_parse(uds_context, UDS_CONFIG_FILE);
 }
 

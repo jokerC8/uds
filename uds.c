@@ -157,7 +157,7 @@ struct uds_context *uds_context_alloc()
 	uds_service_38_init(uds_context);
 	uds_service_3e_init(uds_context);
 	uds_service_85_init(uds_context);
-	uds_dtc_detect_init(uds_context);
+	uds_dtc_monitor_init(uds_context);
 
 	uds_context->status = UDS_Context_Initialized;
 

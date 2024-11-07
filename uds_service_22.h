@@ -1,8 +1,6 @@
 #ifndef __UDS_SERVICE_22_H_INCLUDED__
 #define __UDS_SERVICE_22_H_INCLUDED__
 
-#define UDS_IDENTIFIERS_CONF "./uds_service_22.json"
-
 struct uds_context;
 
 typedef struct uds_service_22_identifier {
