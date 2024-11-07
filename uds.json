@@ -1,0 +1,121 @@
+{
+"sid_22":[
+	{
+		"did":"0xf187",
+		"desc": "vehicleManufacturerSparePartNumberDataIdentifier",
+		"len": 15,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	},
+	{
+		"did":"0xf18a",
+		"desc": "systemSupplierIdentifierDataIdentifier",
+		"len": 10,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	},
+	{
+		"did":"0xf197",
+		"desc": "SystemNameDataIdentifier",
+		"len": 10,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	},
+	{
+		"did":"0xf193",
+		"desc": "systemSupplierECUHardwareVersionNumberDataIdentifier",
+		"len": 2,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	},
+	{
+		"did":"0xf195",
+		"desc": "SystemSupplierECUSoftwareVersionNumberDataIdentifier",
+		"len": 2,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	},
+	{
+		"did":"0xf18c",
+		"desc": "ECUSerialNumberDataIdentifier",
+		"len": 14,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	},
+	{
+		"did":"0xf190",
+		"desc": "VINDataIdentifier",
+		"len": 17,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rw"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rw"},
+			{"security_access_level":2,"attr":"rd"}
+		]
+	}
+],
+"dtcs":[
+	{
+		"dtc": "A20017",
+		"desc": "Circuit voltage above threshold",
+		"monitor_rate": 100
+	},
+	{
+		"dtc": "A20016",
+		"desc": "Circuit voltage below threshold",
+		"monitor_rate": 100
+	}
+]
+}

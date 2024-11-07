@@ -51,7 +51,7 @@ static void generate_security_access_key_2(uds_context_t *uds_context)
 
 static void security_access_send_key_handler(uds_context_t *uds_context, uint8_t sub, uint8_t *data, int len)
 {
-	struct uds_service_27 *uds_service_27 = &uds_context->uds_service_27;
+	uds_service_27_t *uds_service_27 = &uds_context->uds_service_27;
 
 	if (sub == SECURITY_ACCESS_SEND_KEY_1) {
 		generate_security_access_key_1(uds_context);
@@ -93,7 +93,7 @@ int uds_service_27_handler(struct uds_context *uds_context, unsigned char *uds, 
 	uds_stream_t strm = {0};
 	uint8_t nrc = NRC_PositiveRespon_00;
 	uds_response_t *uds_response = &uds_context->uds_response;
-	struct uds_service_27 *uds_service_27 = &uds_context->uds_service_27;
+	uds_service_27_t *uds_service_27 = &uds_context->uds_service_27;
 
 	if (len < 2) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
@@ -168,12 +168,11 @@ finish:
 	uds_context->nrc = nrc;
 	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (uds_context->nrc == NRC_PositiveRespon_00) {
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, sub);
 		uds_stream_write_data(&strm, uds_service_27->seed, sizeof(uds_service_27->seed));
 	}
-	uds_response->len = uds_stream_len(&strm);
 
+	uds_response->len = uds_stream_len(&strm);
 	return nrc;
 }
 
@@ -185,7 +184,7 @@ void uds_service_27_lock_ecu(struct uds_context *uds_context)
 static void delay_timer_callback(struct timer_loop *loop, struct uds_timer *timer)
 {
 	uds_context_t *uds_context = uds_timer_userdata(timer);
-	struct uds_service_27 *uds_service_27 = &uds_context->uds_service_27;
+	uds_service_27_t *uds_service_27 = &uds_context->uds_service_27;
 
 	uds_timer_stop(loop, timer);
 

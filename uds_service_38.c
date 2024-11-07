@@ -19,7 +19,7 @@ static int add_file_handler(uds_context_t *uds_context, uint8_t *uds, int len)
 	uint8_t nrc = NRC_PositiveRespon_00;
 	uds_stream_t strm = {0};
 	uds_response_t *uds_response = &uds_context->uds_response;
-	struct uds_service_38 *uds_service_38 = &uds_context->uds_service_38;
+	uds_service_38_t *uds_service_38 = &uds_context->uds_service_38;
 
 	uds_stream_init(&strm, uds, len);
 	/* sid(1) + mode(1) + filename_len(2) + filename(filename_len) */
@@ -75,18 +75,20 @@ static int add_file_handler(uds_context_t *uds_context, uint8_t *uds, int len)
 		goto finish;
 	}
 
+	/* 36服务准备 */
+	uds_service_36_prepare(uds_context);
+
 finish:
 	uds_context->nrc = nrc;
 	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (nrc == NRC_PositiveRespon_00) {
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, ADDFILE);
 		uds_stream_write_byte(&strm, 2);
 		uds_stream_write_be16(&strm, Max_Number_Of_Block_Length);
 		uds_stream_write_byte(&strm, 0x00);
 	}
-	uds_response->len = uds_stream_len(&strm);
 
+	uds_response->len = uds_stream_len(&strm);
 	return nrc;
 }
 
@@ -115,7 +117,7 @@ int uds_service_38_handler(struct uds_context *uds_context, unsigned char *uds, 
 	uint8_t sid, sub;
 	uds_stream_t strm = {0};
 	uint8_t nrc = NRC_PositiveRespon_00;
-	struct uds_service_38 *uds_service_38 = &uds_context->uds_service_38;
+	uds_service_38_t *uds_service_38 = &uds_context->uds_service_38;
 
 	/* 确保sid, sub, filename len可以正常解析 */
 	if (len < 4) {

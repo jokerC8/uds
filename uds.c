@@ -123,9 +123,9 @@ struct uds_context *uds_context_alloc()
 		goto nomem;
 	}
 
-	/* 预留首部5字节, 用来保存SA,TA,TA_type */
-	uds_context->uds_response.pos = uds_context->uds_response.buffer + 5;
-	uds_context->uds_response.cap = sizeof(uds_context->uds_response.buffer) - 5;
+	/* 预留6字节 SA + TA + TY_type + SID, 主要用来填充正响应 */
+	uds_context->uds_response.pos = uds_context->uds_response.buffer + 6;
+	uds_context->uds_response.cap = sizeof(uds_context->uds_response.buffer) - 6;
 
 	/* 创建定时器主loop */
 	uds_context->loop = timer_loop_alloc(16);
@@ -157,6 +157,7 @@ struct uds_context *uds_context_alloc()
 	uds_service_38_init(uds_context);
 	uds_service_3e_init(uds_context);
 	uds_service_85_init(uds_context);
+	uds_dtc_monitor_init(uds_context);
 
 	uds_context->status = UDS_Context_Initialized;
 
@@ -224,6 +225,7 @@ static int uds_response_init(uds_context_t *uds_context)
 
 static size_t uds_service_respon(uds_context_t *uds_context)
 {
+	uint8_t sub;
 	uds_stream_t strm = {0};
 	uds_response_t *uds_response = &uds_context->uds_response;
 
@@ -231,6 +233,7 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 		return 0;
 	}
 
+	sub = uds_context->uds_indication.buffer[6];
 	uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
 	uds_stream_write_be16(&strm, uds_context->sa);
 	uds_stream_write_be16(&strm, uds_context->ta);
@@ -244,7 +247,8 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 		uds_response->len = uds_stream_len(&strm);
 	}
 	/* 正响应 */
-	else if (!uds_response->spr) {
+	else if (!uds_service_supress_positive_response(uds_context, sub)) {
+		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_response->len += uds_stream_len(&strm);
 	}
 	/* 抑制正响应 */
@@ -255,13 +259,6 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 	uds_hexdump(uds_stream_start_ptr(&strm), uds_response->len);
 	return sendto(uds_response->handler, uds_response->buffer, uds_response->len, 0, \
 			(struct sockaddr *)&uds_response->target, sizeof(uds_response->target));
-}
-
-/* 处理uds新请求前清空response长度和spr标志 */
-static void reset_uds_response(uds_context_t *uds_context)
-{
-	uds_context->uds_response.len = 0;
-	uds_context->uds_response.spr = 0;
 }
 
 static void uds_indication_dispatch(uds_context_t *uds_context)
@@ -280,8 +277,6 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 		logd("uds busy\n");
 		return;
 	}
-
-	reset_uds_response(uds_context);
 
 	uds_context->busy = UDS_BUSY;
 

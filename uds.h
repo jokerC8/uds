@@ -20,6 +20,7 @@
 #include "uds_service_38.h"
 #include "uds_service_3e.h"
 #include "uds_service_85.h"
+#include "uds_dtc_monitor.h"
 #include "uds_service_filter.h"
 
 #define Acquire_Sub_Function(a) ((a) & 0x7f)
@@ -27,6 +28,8 @@
 
 #define UDS_RECEIVER_SOCKFILE                    "/tmp/doip2uds"
 #define UDS_SENDER_SOCKFILE                      "/tmp/uds2doip"
+
+#define UDS_CONFIG_FILE                          "./uds.json"
 
 #define UDS_Service_Session_Control_10 (0x10)
 #define UDS_Service_ECU_Reset_11 (0x11)
@@ -91,7 +94,6 @@ typedef struct uds_indication {
 typedef struct uds_response {
 	int status;
 	int handler;
-	int spr; /* Supress Positive Response */
 	int len;
 	uint32_t cap;
 	uint8_t *pos;
@@ -119,22 +121,23 @@ typedef struct uds_context {
 	uds_indication_t uds_indication;
 
 	/* uds服务 */
-	struct uds_service_10 uds_service_10;
-	struct uds_service_11 uds_service_11;
-	struct uds_service_14 uds_service_14;
-	struct uds_service_19 uds_service_19;
-	struct uds_service_22 uds_service_22;
-	struct uds_service_27 uds_service_27;
-	struct uds_service_28 uds_service_28;
-	struct uds_service_2e uds_service_2e;
-	struct uds_service_2f uds_service_2f;
-	struct uds_service_31 uds_service_31;
-	struct uds_service_34 uds_service_34;
-	struct uds_service_36 uds_service_36;
-	struct uds_service_37 uds_service_37;
-	struct uds_service_38 uds_service_38;
-	struct uds_service_3e uds_service_3e;
-	struct uds_service_85 uds_service_85;
+	uds_service_10_t uds_service_10;
+	uds_service_11_t uds_service_11;
+	uds_service_14_t uds_service_14;
+	uds_service_19_t uds_service_19;
+	uds_service_22_t uds_service_22;
+	uds_service_27_t uds_service_27;
+	uds_service_28_t uds_service_28;
+	uds_service_2e_t uds_service_2e;
+	uds_service_2f_t uds_service_2f;
+	uds_service_31_t uds_service_31;
+	uds_service_34_t uds_service_34;
+	uds_service_36_t uds_service_36;
+	uds_service_37_t uds_service_37;
+	uds_service_38_t uds_service_38;
+	uds_service_3e_t uds_service_3e;
+	uds_service_85_t uds_service_85;
+	uds_dtc_monitor_t uds_dtc_monitor;
 
 	/* 定时器loop */
 	struct timer_loop *loop;

@@ -81,3 +81,13 @@ int uds_service_TAtype_filter(uds_context_t *uds_context)
 
 	return TRUE;
 }
+
+/* 判断服务是否支持抑制正响应 */
+int uds_service_supress_positive_response(struct uds_context *uds_context, uint8_t sub)
+{
+	return (uds_context->sid == 0x10 || \
+		uds_context->sid == 0x11 || \
+		uds_context->sid == 0x28 || \
+		uds_context->sid == 0x85 || \
+		uds_context->sid == 0x3e) && Supress_Positive_Response(sub);
+}

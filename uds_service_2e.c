@@ -1,10 +1,10 @@
 #include "uds.h"
 #include "uds_stream.h"
 
-struct identifier_write_handler {
+typedef struct identifier_write_handler {
 	int did;
 	int (*write)(uds_context_t *uds_context);
-};
+} identifier_write_handler_t;
 
 
 static int identifier_0xf187_write_handler(uds_context_t *uds_context)
@@ -57,9 +57,9 @@ int uds_service_2e_handler(struct uds_context *uds_context, unsigned char *uds, 
 	uint16_t did;
 	uds_stream_t strm = {0};
 	uint8_t nrc = NRC_PositiveRespon_00;
-	struct uds_service_22_identifier *identifier = NULL;
-	struct identifier_write_handler *identifier_handler = NULL;
-	struct uds_service_22 *uds_service_22 = &uds_context->uds_service_22;
+	uds_service_22_identifier_t *identifier = NULL;
+	identifier_write_handler_t *identifier_handler = NULL;
+	uds_service_22_t *uds_service_22 = &uds_context->uds_service_22;
 
 	if (len < 3) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;

@@ -10,12 +10,12 @@ typedef enum {
 	UDS_SESSION_MAX,
 } UDS_Session_E;
 
-struct uds_service_10 {
+typedef struct uds_service_10 {
 	UDS_Session_E session;
 #define MAX_S3SERVER_MS (5000)
 	int S3Server;
 	struct uds_timer *s3_timer;
-};
+} uds_service_10_t;
 
 UDS_Session_E uds_diagnostic_session(struct uds_context *uds_context);
 

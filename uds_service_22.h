@@ -1,11 +1,9 @@
 #ifndef __UDS_SERVICE_22_H_INCLUDED__
 #define __UDS_SERVICE_22_H_INCLUDED__
 
-#define UDS_IDENTIFIERS_CONF "./uds_service_22.json"
-
 struct uds_context;
 
-struct uds_service_22_identifier {
+typedef struct uds_service_22_identifier {
 	unsigned short did;
 	unsigned int len;
 	char desc[64];
@@ -17,12 +15,12 @@ struct uds_service_22_identifier {
 		unsigned char level;
 		unsigned char attribute[3];
 	} security_access_levels[3];
-};
+} uds_service_22_identifier_t;
 
-struct uds_service_22 {
+typedef struct uds_service_22 {
 	int count;
 	struct uds_service_22_identifier *identifiers;
-};
+} uds_service_22_t;
 
 void uds_service_22_init(struct uds_context *uds_context);
 

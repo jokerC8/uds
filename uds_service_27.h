@@ -22,7 +22,7 @@ enum {
 	SECURITY_ACCESS_SEND_KEY_2,
 } Security_Access_Operation_E;
 
-struct uds_service_27 {
+typedef struct uds_service_27 {
 	int status;
 	int fail_count;
 	unsigned char seed[4];
@@ -31,7 +31,7 @@ struct uds_service_27 {
 #define REFUSE_REQUEST_TIME (10000)
 	/* 连续3次发送无效key, 需等待10s才能再次请求 */
 	struct uds_timer *delay_timer;
-};
+} uds_service_27_t;
 
 void uds_service_27_init(struct uds_context *uds_context);
 

@@ -19,6 +19,7 @@ src := uds_stream.c \
 	   uds_service_38.c \
 	   uds_service_3e.c \
 	   uds_service_85.c \
+	   uds_dtc_monitor.c \
 	   uds_service_filter.c \
 	   uds.c \
 	   uds_main.c

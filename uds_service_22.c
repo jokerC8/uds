@@ -2,10 +2,10 @@
 #include "uds_stream.h"
 #include <json-c/json.h>
 
-struct identifier_read_handler {
+typedef struct identifier_read_handler {
 	int did;
 	int (*read)(uds_context_t *uds_context);
-};
+} identifier_read_handler_t;
 
 
 static int identifier_0xf187_read_handler(uds_context_t *uds_context)
@@ -55,7 +55,7 @@ static struct identifier_read_handler __gs_read_handler_table__[] = {
 
 static void uds_service_22_identifier_dump(uds_context_t *uds_context)
 {
-	struct uds_service_22_identifier *identifiers = uds_context->uds_service_22.identifiers;
+	uds_service_22_identifier_t *identifiers = uds_context->uds_service_22.identifiers;
 
 	for (int i = 0; i < uds_context->uds_service_22.count; i++) {
 		logd("did:0x%04x, len:%d, desc:%s\n", identifiers[i].did, identifiers[i].len, identifiers[i].desc);
@@ -74,9 +74,9 @@ int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, 
 {
 	uds_stream_t strm = {0};
 	uint8_t nrc = NRC_PositiveRespon_00;
-	struct uds_service_22_identifier *identifier = NULL;
-	struct uds_service_22 *uds_service_22 = &uds_context->uds_service_22;
-	struct identifier_read_handler *identifier_handler = NULL;
+	uds_service_22_identifier_t *identifier = NULL;
+	uds_service_22_t *uds_service_22 = &uds_context->uds_service_22;
+	identifier_read_handler_t *identifier_handler = NULL;
 	uds_response_t *uds_response = &uds_context->uds_response;
 
 	if (len < 3) {
@@ -134,7 +134,6 @@ int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, 
 	/* did读取未实现或者读取失败, 返回全0数据 */
 	if (!(identifier_handler && identifier_handler->read) || !identifier_handler->read(uds_context)) {
 		uds_stream_init(&strm, uds_response->pos, uds_response->cap);
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_be16(&strm, identifier->did);
 		uds_assert(identifier->len < uds_stream_left_len(&strm), "did len(%d) too long\n", identifier->len);
 		memset(uds_stream_ptr(&strm), 0x00, identifier->len);
@@ -152,9 +151,12 @@ finish:
 
 static void uds_service_22_identifier_parse(uds_context_t *uds_context, const char *filename)
 {
-	struct json_object *identifiers_obj = json_object_from_file(filename);
+	struct json_object *obj = json_object_from_file(filename);
 
-	uds_assert(identifiers_obj, "%s not valid json", filename);
+	uds_assert(obj, "%s not valid json", filename);
+	struct json_object *identifiers_obj = json_object_object_get(obj, "sid_22");
+
+	uds_assert(identifiers_obj, "can not find sid_22 in %s", filename);
 	uds_assert(json_object_is_type(identifiers_obj, json_type_array), "%s is not array", filename);
 
 	int count = json_object_array_length(identifiers_obj);
@@ -223,12 +225,12 @@ static void uds_service_22_identifier_parse(uds_context_t *uds_context, const ch
 	}
 
 	uds_service_22_identifier_dump(uds_context);
-	json_object_put(identifiers_obj);
+	json_object_put(obj);
 }
 
 void uds_service_22_init(struct uds_context *uds_context)
 {
 	logd("uds_service_22_init\n");
-	uds_service_22_identifier_parse(uds_context, UDS_IDENTIFIERS_CONF);
+	uds_service_22_identifier_parse(uds_context, UDS_CONFIG_FILE);
 }
 
