@@ -137,11 +137,7 @@ typedef struct uds_context {
 	uds_service_38_t uds_service_38;
 	uds_service_3e_t uds_service_3e;
 	uds_service_85_t uds_service_85;
-<<<<<<< HEAD
-	uds_dtc_detect_t uds_dtc_detection;
-=======
 	uds_dtc_monitor_t uds_dtc_monitor;
->>>>>>> dev1
 
 	/* 定时器loop */
 	struct timer_loop *loop;

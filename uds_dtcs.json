@@ -1,6 +1,0 @@
-[
-	{"DTC", "A20196", "desc":"GPS Module fault", "monitor_rate": 100},
-	{"DTC", "A21004", "desc":"CAN_CONTRL_ERROR", "monitor_rate": 100},
-	{"DTC", "D03388", "desc":"TBOX CANFD BUS OFF", "monitor_rate": 100},
-	{"DTC", "A20796", "desc":"Internal SIM Card - Invalid", "monitor_rate": 100}
-]
