@@ -3,9 +3,9 @@
 
 struct uds_context;
 
-struct uds_service_31 {
+typedef struct uds_service_31 {
 
-};
+} uds_service_31_t;
 
 void uds_service_31_init(struct uds_context *uds_context);
 

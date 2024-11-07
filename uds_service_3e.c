@@ -27,13 +27,11 @@ int uds_service_3e_handler(struct uds_context *uds_context, unsigned char *uds, 
 
 finish:
 	uds_context->nrc = nrc;
+	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (nrc == NRC_PositiveRespon_00) {
-		uds_stream_init(&strm, uds_response->buffer, uds_response->cap);
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, sub);
-		uds_response->len = uds_stream_len(&strm);
-		uds_response->spr = Supress_Positive_Response(sub);
 	}
+	uds_response->len = uds_stream_len(&strm);
 	return nrc;
 }
 

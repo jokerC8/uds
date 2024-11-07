@@ -3,7 +3,6 @@
 
 int uds_service_37_handler(struct uds_context *uds_context, unsigned char *uds, int len)
 {
-	uds_stream_t strm = {0};
 	uint8_t nrc = NRC_PositiveRespon_00;
 	uds_response_t *uds_response = &uds_context->uds_response;
 
@@ -12,13 +11,11 @@ int uds_service_37_handler(struct uds_context *uds_context, unsigned char *uds, 
 		goto finish;
 	}
 
+	uds_service_36_prepare(uds_context);
+
 finish:
-	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	uds_context->nrc = nrc;
-	if (nrc == NRC_PositiveRespon_00) {
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
-	}
-	uds_response->len = uds_stream_len(&strm);
+	uds_response->len = 0;
 
 	return nrc;
 }

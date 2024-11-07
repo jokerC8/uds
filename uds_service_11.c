@@ -42,7 +42,7 @@ int uds_service_11_handler(struct uds_context *uds_context, uint8_t *uds, int le
 	uds_stream_t strm = {0};
 	int nrc = NRC_PositiveRespon_00;
 	uds_response_t *uds_response = &uds_context->uds_response;
-	struct uds_service_11 *uds_service_11 = &uds_context->uds_service_11;
+	uds_service_11_t *uds_service_11 = &uds_context->uds_service_11;
 
 	if (len != 2) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
@@ -58,11 +58,13 @@ int uds_service_11_handler(struct uds_context *uds_context, uint8_t *uds, int le
 
 	logd("%s\n", uds_service_sub_desc(reset_type));
 
-	if (!(reset_type == ECURESET_HARDRESET || reset_type == ECURESET_KEYOFFRESET || \
-				reset_type == ECURESET_SOFTRESET)) {
+	if (!(reset_type == ECURESET_HARDRESET || reset_type == ECURESET_KEYOFFRESET || reset_type == ECURESET_SOFTRESET)) {
 		nrc = NRC_SubFunctionNotSupported_12;
 		goto finish;
 	}
+
+	/* 恢复DTC设置 */
+	uds_service_85_dtc_setting_on(uds_context);
 
 	if (!uds_timer_running(uds_service_11->delay_reset_timer)) {
 		uds_timer_start(uds_context->loop, uds_service_11->delay_reset_timer);
@@ -72,7 +74,6 @@ finish:
 	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (nrc == NRC_PositiveRespon_00) {
 		uds_stream_write_byte(&strm, sub);
-		uds_response->spr = Supress_Positive_Response(sub);
 	}
 
 	uds_context->nrc = nrc;
@@ -83,7 +84,7 @@ finish:
 static void delay_reset_timer_callback(struct timer_loop *loop, struct uds_timer *timer)
 {
 	uds_context_t *uds_context = uds_timer_userdata(timer);
-	struct uds_service_11 *uds_service_11 = &uds_context->uds_service_11;
+	uds_service_11_t *uds_service_11 = &uds_context->uds_service_11;
 
 	if (uds_service_11->reset_type == ECURESET_HARDRESET) {
 		hard_reset(uds_context);

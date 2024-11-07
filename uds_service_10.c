@@ -16,6 +16,7 @@ static void s3_timer_callback(struct timer_loop *loop, struct uds_timer *timer)
 	 * 4- 清楚升级状态
 	 */
 	uds_service_27_lock_ecu(uds_context);
+	uds_service_85_dtc_setting_on(uds_context);
 }
 
 UDS_Session_E uds_diagnostic_session(struct uds_context *uds_context)
@@ -44,7 +45,7 @@ int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int le
 	uds_stream_t strm = {0};
 	uint8_t sid, sub, session, nrc = NRC_PositiveRespon_00;
 	uds_response_t *uds_response = &uds_context->uds_response;
-	struct uds_service_10 *uds_service_10 = &uds_context->uds_service_10;
+	uds_service_10_t *uds_service_10 = &uds_context->uds_service_10;
 
 	if (len != 2) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
@@ -96,11 +97,9 @@ int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int le
 finish:
 	uds_stream_init(&strm, uds_response->pos, uds_response->cap);
 	if (nrc == NRC_PositiveRespon_00) {
-		uds_stream_write_byte(&strm, uds_context->sid + 0x40);
 		uds_stream_write_byte(&strm, session);
 		uds_stream_write_be16(&strm, uds_context->p2server);
 		uds_stream_write_be16(&strm, uds_context->p2xserver / 10);
-		uds_response->spr = Supress_Positive_Response(sub);
 	}
 
 	uds_response->len = uds_stream_len(&strm);
