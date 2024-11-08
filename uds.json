@@ -110,12 +110,14 @@
 	{
 		"dtc": "A20017",
 		"desc": "Circuit voltage above threshold",
-		"monitor_rate": 100
+		"monitor_rate": 100,
+		"monitor_times": 5
 	},
 	{
 		"dtc": "A20016",
 		"desc": "Circuit voltage below threshold",
-		"monitor_rate": 100
+		"monitor_rate": 100,
+		"monitor_times": 5
 	}
 ]
 }

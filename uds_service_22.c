@@ -17,7 +17,6 @@ static int fill_uds_response(uds_context_t *uds_context, uint16_t identifier, ui
 	uds_stream_write_be16(&strm, identifier);
 	uds_stream_write_data(&strm, data, len);
 	uds_response->len = uds_stream_len(&strm);
-	logd("len:%d\n", uds_response->len);
 	return uds_response->len;
 }
 
