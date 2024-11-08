@@ -3,6 +3,15 @@
 
 #define MONITOR_BASE_TIMER (100) /* DTC检测基准定时器周期 */
 
+#define DTC_TestFailed (1 << 0)
+#define DTC_TestFailedThisOperationCycle (1 << 1)
+#define DTC_PendingDTC (1 << 2)
+#define DTC_ConfirmedDTC (1 << 3)
+#define DTC_TestNotCompletedSinceLastClear (1 << 4)
+#define DTC_TestFailedSinceLastClear (1 << 5)
+#define DTC_TestNotCompletedThisOperationCycle (1 << 6)
+#define DTC_WarningIndicatorRequested (1 << 7)
+
 struct uds_context;
 
 typedef struct uds_dtc {
@@ -20,7 +29,7 @@ typedef struct uds_dtc {
 	unsigned char monitor_counter; /* 已连续检测到故障次数 */
 	char desc[63]; /* DTC说明 */
 	int monitor_rate; /* 检测周期(ms) */
-	int (*fp)(struct uds_context *uds_context, struct uds_dtc *uds_dtc);
+	int (*monitor)(struct uds_context *uds_context, struct uds_dtc *uds_dtc);
 } uds_dtc_t;
 
 typedef struct uds_dtc_monitor {

@@ -1,22 +1,27 @@
 #include "uds.h"
 #include "uds_stream.h"
 
-static void communication_control_EnableRxAndTx(uds_context_t *uds_context)
+void uds_service_28_communicate_control_reset(uds_context_t *uds_context)
+{
+	logd("uds_service_28_communicate_control_reset\n");
+}
+
+static void communication_control_EnableRxAndTx(uds_context_t *uds_context, uint8_t type)
 {
 	logd("communication_control_EnableRxAndTx\n");
 }
 
-static void communication_control_EnableRxAndDisableTx(uds_context_t *uds_context)
+static void communication_control_EnableRxAndDisableTx(uds_context_t *uds_context, uint8_t type)
 {
 	logd("communication_control_EnableRxAndDisableTx\n");
 }
 
-static void communication_control_DisableRxAndEnableTx(uds_context_t *uds_context)
+static void communication_control_DisableRxAndEnableTx(uds_context_t *uds_context, uint8_t type)
 {
 	logd("communication_control_DisableRxAndEnableTx\n");
 }
 
-static void communication_control_DisableRxAndTx(uds_context_t *uds_context)
+static void communication_control_DisableRxAndTx(uds_context_t *uds_context, uint8_t type)
 {
 	logd("communication_control_DisableRxAndTx\n");
 }
@@ -28,7 +33,7 @@ int uds_service_28_handler(struct uds_context *uds_context, unsigned char *uds, 
 	uds_response_t *uds_response = &uds_context->uds_response;
 
 	/* 长度或者格式不正确 */
-	if (len != 2) {
+	if (len != 3) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
 		goto finish;
 	}
@@ -42,18 +47,19 @@ int uds_service_28_handler(struct uds_context *uds_context, unsigned char *uds, 
 	uds_stream_init(&strm, uds, len);
 	uds_stream_forward(&strm, 1);
 	uint8_t sub = uds_stream_read_byte(&strm);
+	uint8_t type = uds_stream_read_byte(&strm);
 	switch (Acquire_Sub_Function(sub)) {
 		case CommunicationControl_EnableRxAndTx:
-			communication_control_EnableRxAndTx(uds_context);
+			communication_control_EnableRxAndTx(uds_context, type);
 			break;
 		case CommunicationControl_EnableRxAndDisableTx:
-			communication_control_EnableRxAndDisableTx(uds_context);
+			communication_control_EnableRxAndDisableTx(uds_context, type);
 			break;
 		case CommunicationControl_DisableRxAndEnableTx:
-			communication_control_DisableRxAndEnableTx(uds_context);
+			communication_control_DisableRxAndEnableTx(uds_context, type);
 			break;
 		case CommunicationControl_DisableRxAndTx:
-			communication_control_DisableRxAndTx(uds_context);
+			communication_control_DisableRxAndTx(uds_context, type);
 			break;
 		default:
 			nrc = NRC_SubFunctionNotSupported_12;

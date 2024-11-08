@@ -8,14 +8,23 @@ typedef struct uds_dtc_handler {
 	int (*monitor)(uds_context_t *uds_context, uds_dtc_t *dtc);
 } uds_dtc_handler_t;
 
-static void test_failed_confired(uds_dtc_t *dtc)
+static void test_failed_confirmed(uds_dtc_t *dtc)
 {
-
+	/* DTC已经是comfirmed状态,是否要更新已保存DTC ? */
+	if (!(dtc->statusOfDTC & DTC_ConfirmedDTC)) {
+		/* SAVE DTC */
+		dtc->statusOfDTC |= DTC_ConfirmedDTC;
+	}
 }
 
 static void test_pass(uds_dtc_t *dtc)
 {
+	dtc->statusOfDTC &= ~(DTC_TestFailed);
+}
 
+static void test_failed(uds_dtc_t *dtc)
+{
+	dtc->statusOfDTC |= DTC_TestFailed;
 }
 
 int __uds_dtc_monitor(uds_context_t *uds_context, uds_dtc_t *dtc)
@@ -27,12 +36,13 @@ int __uds_dtc_monitor(uds_context_t *uds_context, uds_dtc_t *dtc)
 
 	dtc->counter = 0;
 
-	/* test fail */
-	if (dtc->fp(uds_context, dtc)) {
+	/* 检测到故障码 */
+	if (dtc->monitor(uds_context, dtc)) {
+		test_failed(dtc);
 		dtc->monitor_counter++;
 		if (++dtc->monitor_counter == dtc->monitor_count) {
 			dtc->monitor_counter = 0;
-			test_failed_confired(dtc);
+			test_failed_confirmed(dtc);
 		}
 	}
 	else {
@@ -152,7 +162,7 @@ static void uds_dtc_parse(uds_context_t *uds_context, const char *filename)
 				MIN((int)ARRAYSIZE(uds_dtc_monitor->dtcs[i].desc), json_object_get_string_len(desc_obj)));
 
 		/* 放个桩函数,防止空函数指针 */
-		uds_dtc_monitor->dtcs[i].fp = uds_dtc_monitor_stub;
+		uds_dtc_monitor->dtcs[i].monitor = uds_dtc_monitor_stub;
 		/* 以基准定时器为周期,计算超时几次需要检测一次DTC */
 		uds_dtc_monitor->dtcs[i].count = uds_dtc_monitor->dtcs[i].monitor_rate / MONITOR_BASE_TIMER;
 		if (uds_dtc_monitor->dtcs[i].count == 0) {
@@ -164,7 +174,7 @@ static void uds_dtc_parse(uds_context_t *uds_context, const char *filename)
 	for (int i = 0; i < uds_dtc_monitor->count; i++) {
 		for (size_t k = 0; k < ARRAYSIZE(__gs_dtc_handlers__); k++) {
 			if (__gs_dtc_handlers__[k].dtc == uds_dtc_monitor->dtcs[i].DTC_Num) {
-				uds_dtc_monitor->dtcs[i].fp = __gs_dtc_handlers__[k].monitor;
+				uds_dtc_monitor->dtcs[i].monitor = __gs_dtc_handlers__[k].monitor;
 			}
 		}
 	}

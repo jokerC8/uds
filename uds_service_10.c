@@ -14,9 +14,11 @@ static void s3_timer_callback(struct timer_loop *loop, struct uds_timer *timer)
 	 * 2- 重新锁定ECU
 	 * 3- 清空IO控制
 	 * 4- 清楚升级状态
+	 * 5- 报文收发控制
 	 */
 	uds_service_27_lock_ecu(uds_context);
 	uds_service_85_dtc_setting_on(uds_context);
+	uds_service_28_communicate_control_reset(uds_context);
 }
 
 UDS_Session_E uds_diagnostic_session(struct uds_context *uds_context)
