@@ -226,6 +226,7 @@ static int uds_response_init(uds_context_t *uds_context)
 static size_t uds_service_respon(uds_context_t *uds_context)
 {
 	uint8_t sub;
+	ssize_t count = 0;
 	uds_stream_t strm = {0};
 	uds_response_t *uds_response = &uds_context->uds_response;
 
@@ -257,8 +258,11 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 	}
 
 	uds_hexdump(uds_stream_start_ptr(&strm), uds_response->len);
-	return sendto(uds_response->handler, uds_response->buffer, uds_response->len, 0, \
+	count = sendto(uds_response->handler, uds_response->buffer, uds_response->len, 0, \
 			(struct sockaddr *)&uds_response->target, sizeof(uds_response->target));
+
+	uds_response->len = 0;
+	return count;
 }
 
 static void uds_indication_dispatch(uds_context_t *uds_context)
@@ -279,6 +283,7 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	}
 
 	uds_context->busy = UDS_BUSY;
+	uds_context->uds_response.len = 0;
 
 	/* uds服务推荐NRC优先级顺序如下,如车厂有自己要求则需要更改
 	 * -> NRC_ServiceNotSupported_11
@@ -308,6 +313,8 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 		uds_context->nrc = NRC_ConditionsNotCorrect_22;
 		goto finish;
 	}
+
+	logd("sid(0x%02x) %s\n", uds_context->sid, uds_service_desc(uds_context));
 
 	switch (uds_context->sid) {
 		case UDS_Service_Session_Control_10:
@@ -366,7 +373,6 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	}
 
 finish:
-	logd("sid(0x%02x) %s\n", uds_context->sid, uds_service_desc(uds_context));
 	uds_hexdump(uds_indication->buffer, uds_indication->len);
 
 	uds_service_respon(uds_context);

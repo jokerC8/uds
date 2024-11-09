@@ -21,6 +21,7 @@
 #include "uds_service_3e.h"
 #include "uds_service_85.h"
 #include "uds_dtc_monitor.h"
+#include "uds_dtc_storage.h"
 #include "uds_service_filter.h"
 
 #define Acquire_Sub_Function(a) ((a) & 0x7f)

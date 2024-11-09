@@ -23,6 +23,6 @@ void maintain_diagnostic_mode(struct uds_context *uds_context);
 
 void uds_service_10_init(struct uds_context *uds_context);
 
-int uds_service_10_handler(struct uds_context *uds_context, unsigned char *data, int len);
+int uds_service_10_handler(struct uds_context *uds_context, unsigned char *uds, int len);
 
 #endif

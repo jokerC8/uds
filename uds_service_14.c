@@ -1,39 +1,55 @@
 #include "uds.h"
 
-static int read_dtc_group_of_emission(uds_context_t *uds_context)
+static const char *uds_service_14_desc(uint32_t group)
 {
+	switch (group) {
+		case GROUP_OF_DTC_EMISSION:
+			return "clear DTC GROUP_OF_DTC_EMISSION";
+		case GROUP_OF_DTC_POWER:
+			return "clear DTC GROUP_OF_DTC_POWER";
+		case GROUP_OF_DTC_CHASSIS:
+			return "clear DTC GROUP_OF_DTC_CHASSIS";
+		case GROUP_OF_DTC_BODY:
+			return "clear DTC GROUP_OF_DTC_BODY";
+		case GROUP_OF_DTC_NETWORK:
+			return "clear DTC GROUP_OF_DTC_NETWORK";
+		case GROUP_OF_DTC_ALL:
+			return "clear DTC GROUP_OF_DTC_ALL";
+		default:
+			return "unkonw dtc group";
+	}
+}
+
+/* 删除与DTC相关记录 */
+static int del_dtc_record(uds_dtc_t *dtc)
+{
+	/* TODO */
 	return 0;
 }
 
-static int read_dtc_group_of_power(uds_context_t *uds_context)
+static int uds_service_14_clear_dtc(uds_context_t *uds_context, uint32_t group)
 {
-	return 0;
-}
+	uds_dtc_monitor_t *uds_dtc_monitor = &uds_context->uds_dtc_monitor;
 
-static int read_dtc_group_of_chassis(uds_context_t *uds_context)
-{
-	return 0;
-}
+	for (int i = 0; i < uds_dtc_monitor->count; i++) {
+		if (group == GROUP_OF_DTC_ALL) {
+			uds_dtc_monitor->dtcs[i].statusOfDTC = 0;
+			del_dtc_record(&uds_dtc_monitor->dtcs[i]);
+		}
+		else if ((uds_dtc_monitor->dtcs[i].DTC_Num & 0x3fffff) == (group & 0x3fffff)) {
+			uds_dtc_monitor->dtcs[i].statusOfDTC = 0;
+			del_dtc_record(&uds_dtc_monitor->dtcs[i]);
+		}
+	}
 
-static int read_dtc_group_of_body(uds_context_t *uds_context)
-{
-	return 0;
-}
-
-static int read_dtc_group_of_network(uds_context_t *uds_context)
-{
-	return 0;
-}
-
-static int read_dtc_group_of_all(uds_context_t *uds_context)
-{
-	return 0;
+	return NRC_PositiveRespon_00;
 }
 
 int uds_service_14_handler(struct uds_context *uds_context, unsigned char *data, int len)
 {
 	uint32_t groupOfDTC = 0;
 	uint8_t nrc = NRC_PositiveRespon_00;
+	uds_response_t *uds_response = &uds_context->uds_response;
 
 	if (len != 4) {
 		nrc = NRC_IncorrectMessageLengthOrInvalidFormat_13;
@@ -49,22 +65,22 @@ int uds_service_14_handler(struct uds_context *uds_context, unsigned char *data,
 
 	switch (groupOfDTC) {
 		case GROUP_OF_DTC_EMISSION:
-			read_dtc_group_of_emission(uds_context);
+			nrc = uds_service_14_clear_dtc(uds_context, GROUP_OF_DTC_EMISSION);
 			break;
 		case GROUP_OF_DTC_POWER:
-			read_dtc_group_of_power(uds_context);
+			nrc = uds_service_14_clear_dtc(uds_context, GROUP_OF_DTC_POWER);
 			break;
 		case GROUP_OF_DTC_CHASSIS:
-			read_dtc_group_of_chassis(uds_context);
+			nrc = uds_service_14_clear_dtc(uds_context, GROUP_OF_DTC_CHASSIS);
 			break;
 		case GROUP_OF_DTC_BODY:
-			read_dtc_group_of_body(uds_context);
+			nrc = uds_service_14_clear_dtc(uds_context, GROUP_OF_DTC_BODY);
 			break;
 		case GROUP_OF_DTC_NETWORK:
-			read_dtc_group_of_network(uds_context);
+			nrc = uds_service_14_clear_dtc(uds_context, GROUP_OF_DTC_NETWORK);
 			break;
 		case GROUP_OF_DTC_ALL:
-			read_dtc_group_of_all(uds_context);
+			nrc = uds_service_14_clear_dtc(uds_context, GROUP_OF_DTC_ALL);
 			break;
 		default:
 			nrc = NRC_RequestOutOfRange_31;
@@ -72,6 +88,8 @@ int uds_service_14_handler(struct uds_context *uds_context, unsigned char *data,
 	}
 
 finish:
+	logd("%s\n", uds_service_14_desc(groupOfDTC));
+	uds_response->len = 0;
 	uds_context->nrc = nrc;
 	return nrc;
 }

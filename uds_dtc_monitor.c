@@ -8,11 +8,44 @@ typedef struct uds_dtc_handler {
 	int (*monitor)(uds_context_t *uds_context, uds_dtc_t *dtc);
 } uds_dtc_handler_t;
 
+/* 1. DTC_Confirmed时只保存一次Global Snapshot
+ * 2. DTC_TestFailed时每次都更新Local Snapshot
+ */
+static void update_global_dtc_record(uds_dtc_t *dtc)
+{
+	if (!dtc->global_snapshot.valid) {
+		bzero(&dtc->global_snapshot, sizeof(dtc->global_snapshot));
+
+		dtc->global_snapshot.valid = 1;
+		dtc->global_snapshot.record_num = GLOBAL_RECORD_NUMBER;
+		dtc->global_snapshot.power_supply_vol_did = 0xB000;
+		dtc->global_snapshot.power_supply_vol = 0;
+		dtc->global_snapshot.vehile_speed_did = 0xB001;
+		dtc->global_snapshot.vehile_speed = 0;
+		dtc->global_snapshot.odometer_id = 0xB004;
+		dtc->global_snapshot.odometer = 0;
+		dtc->global_snapshot.timestamp_id = 0xB005;
+	}
+}
+
+static void update_local_dtc_record(uds_dtc_t *dtc)
+{
+	bzero(&dtc->local_snapshot, sizeof(dtc->local_snapshot));
+	dtc->local_snapshot.valid = 1;
+	dtc->local_snapshot.record_num = LOCAL_RECORD_NUMBER;
+	dtc->local_snapshot.power_supply_vol_did = 0xB000;
+	dtc->local_snapshot.power_supply_vol = 0;
+	dtc->local_snapshot.vehile_speed_did = 0xB001;
+	dtc->local_snapshot.vehile_speed = 0;
+	dtc->local_snapshot.odometer_id = 0xB004;
+	dtc->local_snapshot.odometer = 0;
+	dtc->local_snapshot.timestamp_id = 0xB005;
+}
+
 static void test_failed_confirmed(uds_dtc_t *dtc)
 {
-	/* DTC已经是comfirmed状态,是否要更新已保存DTC ? */
 	if (!(dtc->statusOfDTC & DTC_ConfirmedDTC)) {
-		/* SAVE DTC */
+		update_global_dtc_record(dtc);
 		dtc->statusOfDTC |= DTC_ConfirmedDTC;
 	}
 }
@@ -25,6 +58,8 @@ static void test_pass(uds_dtc_t *dtc)
 static void test_failed(uds_dtc_t *dtc)
 {
 	dtc->statusOfDTC |= DTC_TestFailed;
+	++dtc->extended_data.occurrence_counter;
+	update_local_dtc_record(dtc);
 }
 
 int __uds_dtc_monitor(uds_context_t *uds_context, uds_dtc_t *dtc)
@@ -190,6 +225,7 @@ void uds_dtc_monitor_init(struct uds_context *uds_context)
 	logd("uds_dtc_monitor_init\n");
 
 	uds_dtc_parse(uds_context, UDS_CONFIG_FILE);
+	uds_context->uds_dtc_monitor.DTCStatusAvailabilityMask = DTC_STATUS_AVAILABILITY_MASK;
 	uds_context->uds_dtc_monitor.monitor_timer = uds_timer_alloc(monitor_timer_callback, MONITOR_BASE_TIMER, 0, 0);
 	uds_timer_set_userdata(uds_context->uds_dtc_monitor.monitor_timer, uds_context);
 	uds_timer_start(uds_context->loop, uds_context->uds_dtc_monitor.monitor_timer);
