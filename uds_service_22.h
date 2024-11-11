@@ -24,6 +24,6 @@ typedef struct uds_service_22 {
 
 void uds_service_22_init(struct uds_context *uds_context);
 
-int uds_service_22_handler(struct uds_context *uds_context, unsigned char *data, int len);
+int uds_service_22_handler(struct uds_context *uds_context, unsigned char *uds, int len);
 
 #endif

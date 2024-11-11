@@ -29,7 +29,7 @@ UDS_Session_E uds_diagnostic_session(struct uds_context *uds_context)
 
 void maintain_diagnostic_mode(struct uds_context *uds_context)
 {
-	struct uds_service_10 *uds_service_10 = &uds_context->uds_service_10;
+	uds_service_10_t *uds_service_10 = &uds_context->uds_service_10;
 	uds_assert(uds_context, "uds_context is NULL");
 
 	/* 默认会话下无需维持 */
