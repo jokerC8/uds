@@ -174,8 +174,11 @@ static void uds_service_22_identifier_parse(uds_context_t *uds_context, const ch
 
 	uds_assert(obj, "%s not valid json", filename);
 	struct json_object *identifiers_obj = json_object_object_get(obj, "sid_22");
+	if (!identifiers_obj) {
+		loge("can not find sid_22 in %s\n", filename);
+		return;
+	}
 
-	uds_assert(identifiers_obj, "can not find sid_22 in %s", filename);
 	uds_assert(json_object_is_type(identifiers_obj, json_type_array), "%s is not array", filename);
 
 	int count = json_object_array_length(identifiers_obj);

@@ -285,7 +285,7 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	uds_context->busy = UDS_BUSY;
 	uds_context->uds_response.len = 0;
 
-	/* uds服务推荐NRC优先级顺序如下,如车厂有自己要求则需要更改
+	/* uds服务推荐NRC优先级顺序如下,如车厂有自己要求则需要更改, 我们以下尽量都按这个优先级去返回NRC
 	 * -> NRC_ServiceNotSupported_11
 	 * -> NRC_ServiceNotSupportedInActiveSession_7f
 	 * -> NRC_IncorrectMessageLengthOrInvalidFormat_13

@@ -158,7 +158,11 @@ static void uds_dtc_parse(uds_context_t *uds_context, const char *filename)
 	uds_assert(obj, "%s is not valid json", filename);
 
 	struct json_object *dtcs_obj = json_object_object_get(obj, "dtcs");
-	uds_assert(dtcs_obj, "can not find dtcs in %s", filename);
+	if (!dtcs_obj) {
+		loge("can not find dtcs in %s\n", filename);
+		return;
+	}
+
 	uds_assert(json_object_is_type(dtcs_obj, json_type_array), "dtcs is not array");
 
 	uds_dtc_monitor_t *uds_dtc_monitor = &uds_context->uds_dtc_monitor;
