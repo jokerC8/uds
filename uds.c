@@ -79,6 +79,34 @@ static const char *uds_service_desc(uds_context_t *uds_context)
 	}
 }
 
+static const char *uds_diagnostic_session_desc(UDS_Session_E session)
+{
+	switch (session) {
+		case UDS_DEFAULT_SESSION:
+			return "default session";
+		case UDS_EXTEND_SESSION:
+			return "extend session";
+		case UDS_PROGRAMMING_SESSION:
+			return "programming session";
+		default:
+			return "unknow session";
+	}
+}
+
+static const char *uds_security_access_level_desc(Security_Level_E security_access_level)
+{
+	switch (security_access_level) {
+		case SECURITY_ACCESS_LEVEL_LOCK:
+			return "security access locked";
+		case SECURITY_ACCESS_LEVEL_1:
+			return "security access level_1";
+		case SECURITY_ACCESS_LEVEL_2:
+			return "security access level_2";
+		default:
+			return "unknow security access level";
+	}
+}
+
 /* 定时打印一些调试信息 */
 static void heartbeat_timer_cb(struct timer_loop *loop, struct uds_timer *timer)
 {
@@ -89,6 +117,9 @@ static void heartbeat_timer_cb(struct timer_loop *loop, struct uds_timer *timer)
 			connection_des(uds_context->uds_indication.status));
 	logd("uds_response->handler:%d, status:%s\n", uds_context->uds_response.handler, \
 			connection_des(uds_context->uds_response.status));
+	logd("session:%s\n", uds_diagnostic_session_desc(uds_context->uds_service_10.session));
+	logd("security_access_level:%s\n", uds_security_access_level_desc(uds_context->uds_service_27.security_access_level));
+	logd("-------------------------------------------------------------------\n");
 }
 
 static void nrc78_timer_callback(struct timer_loop *loop, struct uds_timer *timer)

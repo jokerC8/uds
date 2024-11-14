@@ -69,7 +69,7 @@ int uds_service_10_handler(struct uds_context *uds_context, uint8_t *uds, int le
 		goto finish;
 	}
 
-	/* 重新锁定ECU */
+	/* 会话模式改变, 重新锁定ECU */
 	uds_service_27_lock_ecu(uds_context);
 
 	/* 默认会话模式 -> 默认会话模式或拓展会话模式
