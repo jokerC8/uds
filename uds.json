@@ -298,21 +298,25 @@
 
 "sid_31":[
 	{
-		"rid": "9d0c",
+		"rid": "fe01",
 		"control_type":[
 			{
 				"type": 1,
 				"len": 0,
-				"desc": "Activate Certificate",
+				"desc": "testing",
 				"sessions":[3],
-				"security_access_levels":[3]
+				"security_access_levels":[3],
+				"session_nrc":"22",
+				"security_access_nrc":"33"
 			},
 			{
 				"type": 3,
 				"len": 0,
-				"desc": "Read Activate Certificate Result",
+				"desc": "read testing result",
 				"sessions":[3],
-				"security_access_levels":[3]
+				"security_access_levels":[3],
+				"session_nrc":"22",
+				"security_access_nrc":"33"
 			}
 		]
 	}
