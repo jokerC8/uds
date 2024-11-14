@@ -13,7 +13,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rd"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	},
 	{
 		"did":"0xf18a",
@@ -28,7 +30,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rd"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	},
 	{
 		"did":"0xf197",
@@ -43,7 +47,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rd"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	},
 	{
 		"did":"0xf193",
@@ -58,7 +64,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rd"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	},
 	{
 		"did":"0xf195",
@@ -73,7 +81,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rd"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	},
 	{
 		"did":"0xf18c",
@@ -88,7 +98,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rd"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	},
 	{
 		"did":"0xf190",
@@ -103,7 +115,9 @@
 			{"security_access_level":0,"attr":"rd"},
 			{"security_access_level":1,"attr":"rw"},
 			{"security_access_level":2,"attr":"rd"}
-		]
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
 	}
 ],
 

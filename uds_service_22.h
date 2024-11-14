@@ -5,6 +5,8 @@ struct uds_context;
 
 typedef struct uds_service_22_identifier {
 	unsigned short did;
+	unsigned char session_nrc;
+	unsigned char security_access_nrc;
 	unsigned int len;
 	char desc[64];
 	struct {

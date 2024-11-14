@@ -9,6 +9,8 @@ typedef struct uds_service_2f {
 
 void uds_service_2f_init(struct uds_context *uds_context);
 
+void uds_service_2f_io_reset(struct uds_context *uds_context);
+
 int uds_service_2f_handler(struct uds_context *uds_context, unsigned char *uds, int len);
 
 #endif
