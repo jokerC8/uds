@@ -21,7 +21,6 @@
 #include "uds_service_3e.h"
 #include "uds_service_85.h"
 #include "uds_dtc_monitor.h"
-#include "uds_dtc_storage.h"
 #include "uds_service_filter.h"
 
 #define Acquire_Sub_Function(a) ((a) & 0x7f)
@@ -108,9 +107,9 @@ typedef struct uds_context {
 	uint8_t busy;
 	uint8_t start;
 	uint8_t status;
-	uint16_t sa;
-	uint16_t ta;
-	uint8_t ta_type;
+	uint16_t SA;
+	uint16_t TA;
+	uint8_t TA_type;
 	uint8_t sid;
 	uint8_t nrc;
 	uint8_t reserved;

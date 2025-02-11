@@ -46,32 +46,28 @@ int uds_service_session_verify(struct uds_context *uds_context)
 /* 根据ecu实际uds实现修改 */
 int uds_service_verify(uds_context_t *uds_context)
 {
-	if (uds_context->sid == 0x10 || \
-		uds_context->sid == 0x11 || \
-		uds_context->sid == 0x14 || \
-		uds_context->sid == 0x19 || \
-		uds_context->sid == 0x22 || \
-		uds_context->sid == 0x27 || \
-		uds_context->sid == 0x28 || \
-		uds_context->sid == 0x2e || \
-		uds_context->sid == 0x2f || \
-		uds_context->sid == 0x31 || \
-		uds_context->sid == 0x34 || \
-		uds_context->sid == 0x36 || \
-		uds_context->sid == 0x37 || \
-		uds_context->sid == 0x38 || \
-		uds_context->sid == 0x3e || \
-		uds_context->sid == 0x85) {
-			return TRUE;
-		}
-
-	return FALSE;
+	return (uds_context->sid == 0x10 || \
+			uds_context->sid == 0x11 || \
+			uds_context->sid == 0x14 || \
+			uds_context->sid == 0x19 || \
+			uds_context->sid == 0x22 || \
+			uds_context->sid == 0x27 || \
+			uds_context->sid == 0x28 || \
+			uds_context->sid == 0x2e || \
+			uds_context->sid == 0x2f || \
+			uds_context->sid == 0x31 || \
+			uds_context->sid == 0x34 || \
+			uds_context->sid == 0x36 || \
+			uds_context->sid == 0x37 || \
+			uds_context->sid == 0x38 || \
+			uds_context->sid == 0x3e || \
+			uds_context->sid == 0x85);
 }
 
 /* 过滤允许功能地址访问的服务 */
 int uds_service_TAtype_filter(uds_context_t *uds_context)
 {
-	if (uds_context->ta_type == TATYPE_FUNC_ADDR) {
+	if (uds_context->TA_type == TATYPE_FUNC_ADDR) {
 		return ((uds_context->sid == 0x10 || \
 				uds_context->sid == 0x11 || \
 				uds_context->sid == 0x28 || \

@@ -267,9 +267,9 @@ static size_t uds_service_respon(uds_context_t *uds_context)
 
 	sub = uds_context->uds_indication.buffer[6];
 	uds_stream_init(&strm, uds_response->buffer, sizeof(uds_response->buffer));
-	uds_stream_write_be16(&strm, uds_context->sa);
-	uds_stream_write_be16(&strm, uds_context->ta);
-	uds_stream_write_byte(&strm, uds_context->ta_type);
+	uds_stream_write_be16(&strm, uds_context->SA);
+	uds_stream_write_be16(&strm, uds_context->TA);
+	uds_stream_write_byte(&strm, uds_context->TA_type);
 
 	/* 负响应 */
 	if (uds_context->nrc != NRC_PositiveRespon_00){
@@ -302,9 +302,9 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	uds_indication_t *uds_indication = &uds_context->uds_indication;
 
 	uds_stream_init(&strm, uds_indication->buffer, uds_indication->len);
-	uds_context->sa = uds_stream_read_be16(&strm);
-	uds_context->ta = uds_stream_read_be16(&strm);
-	uds_context->ta_type = uds_stream_read_byte(&strm);
+	uds_context->SA = uds_stream_read_be16(&strm);
+	uds_context->TA = uds_stream_read_be16(&strm);
+	uds_context->TA_type = uds_stream_read_byte(&strm);
 
 	uds_context->sid = uds_stream_read_byte(&strm);
 
@@ -325,7 +325,7 @@ static void uds_indication_dispatch(uds_context_t *uds_context)
 	 * -> NRC_SecurityAccessDenied_33
 	 * -> NRC_RequestSequenceError_24
 	 * -> NRC_RequestOutOfRange_31
-	 * ->NRC_ConditionsNotCorrect_22
+	 * -> NRC_ConditionsNotCorrect_22
 	 * -> NRC_RequestCorrentlyReceivedResponPending_78
 	 */
 
