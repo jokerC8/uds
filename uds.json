@@ -1,0 +1,338 @@
+{
+"sid_22":[
+	{
+		"did":"0xf187",
+		"desc": "vehicleManufacturerSparePartNumberDataIdentifier",
+		"len": 15,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	},
+	{
+		"did":"0xf18a",
+		"desc": "systemSupplierIdentifierDataIdentifier",
+		"len": 10,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	},
+	{
+		"did":"0xf197",
+		"desc": "SystemNameDataIdentifier",
+		"len": 10,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	},
+	{
+		"did":"0xf193",
+		"desc": "systemSupplierECUHardwareVersionNumberDataIdentifier",
+		"len": 2,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	},
+	{
+		"did":"0xf195",
+		"desc": "SystemSupplierECUSoftwareVersionNumberDataIdentifier",
+		"len": 2,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	},
+	{
+		"did":"0xf18c",
+		"desc": "ECUSerialNumberDataIdentifier",
+		"len": 14,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rd"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rd"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	},
+	{
+		"did":"0xf190",
+		"desc": "VINDataIdentifier",
+		"len": 17,
+		"sessions":[
+			{"session":1,"attr":"rd"},
+			{"session":2,"attr":"rd"},
+			{"session":3,"attr":"rw"}
+		],
+		"security_access_levels":[
+			{"security_access_level":0,"attr":"rd"},
+			{"security_access_level":1,"attr":"rw"},
+			{"security_access_level":2,"attr":"rd"}
+		],
+		"session_nrc":"22",
+		"security_access_nrc":"33"
+	}
+],
+
+"dtcs":[
+	{
+		"dtc": "A20017",
+		"desc": "Circuit voltage above threshold",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20016",
+		"desc": "Circuit voltage below threshold",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20113",
+		"desc": "GPS ant circuit open",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20111",
+		"desc": "GPS ant circuit short to ground",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20196",
+		"desc": "GPS Module fault",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20600",
+		"desc": "Inner SIM Card Status - Not Present",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20796",
+		"desc": "Internal SIM Card - Invalid",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20957",
+		"desc": "Tbox SC/PIN was not configured",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20A57",
+		"desc": "Tbox VIN was not configured",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20E96",
+		"desc": "Mater Bluetooth module communication failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A20F11",
+		"desc": "ECALL switch circuit short",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A21004",
+		"desc": "CAN_CONTRL_ERROR",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A21196",
+		"desc": "DCM_RTC_ERROR",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A21255",
+		"desc": "BLE KEY didn't configure correctly",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A2134B",
+		"desc": "RTM_BATTERY_TEMPERATURE_ERROR",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A21315",
+		"desc": "RTM_BATTERY_CONNECTION_ERROR",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "A21349",
+		"desc": "Internal battery failure or end of life",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "D02887",
+		"desc": "Lost communication with IPM/AC",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "D03388",
+		"desc": "TBOX CANFD BUS OFF",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "D02F87",
+		"desc": "GW Missing",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "D00787",
+		"desc": "BMS Missing",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48000",
+		"desc": "Generating a SM2 vehicle key pairs failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48100",
+		"desc": "Generating an ECU AES key failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48200",
+		"desc": "Receiving the ECU S/N failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48300",
+		"desc": "ECU AES key verification failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48400",
+		"desc": "Canceling the vehicle SM2 key pair failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48500",
+		"desc": "Sending the ECU AES key to GW failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48600",
+		"desc": "Sending the ECU AES key to BDCU failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "E48700",
+		"desc": "Sending the ECU AES key to CDCU failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "D04000",
+		"desc": "the verification of CMAC failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	},
+	{
+		"dtc": "D04100",
+		"desc": "SecOC initialization failure",
+		"monitor_rate": 100,
+		"monitor_count": 5
+	}
+],
+
+"sid_31":[
+	{
+		"rid": "fe01",
+		"control_type":[
+			{
+				"type": 1,
+				"len": 0,
+				"desc": "testing",
+				"sessions":[3],
+				"security_access_levels":[3],
+				"session_nrc":"22",
+				"security_access_nrc":"33"
+			},
+			{
+				"type": 3,
+				"len": 0,
+				"desc": "read testing result",
+				"sessions":[3],
+				"security_access_levels":[3],
+				"session_nrc":"22",
+				"security_access_nrc":"33"
+			}
+		]
+	}
+]
+}
